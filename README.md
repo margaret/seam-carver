@@ -26,14 +26,14 @@ Aight, I'm gonna just redo this, it was becoming kind of a mess, anyway.
 
 Things that we need to be able to do in order to do a simple content-aware image resize in a single direction. The other direction can be done by rotating the image and shoving it through the exact same steps. 
 
-0. Read in an image
-1. Calculate the energy function for the whole image
+1. Read in an image
+2. Calculate the energy function for the whole image
 	a. Function to calculate the energy of a single pixel, given the values of its neighboring pixels
 	b. Function to calculate energy map for entire image
 	c. (extra) Display energy map of image as heat map
-2. Find the seam of lowest energy
-3. Remove seam of lowest energy
-4. Repeat 1 through 3 until image is as small as specified
+3. Find the seam of lowest energy
+4. Remove seam of lowest energy
+5. Repeat 2 through 4 until image is as small as specified
 
 ### Notes
 
