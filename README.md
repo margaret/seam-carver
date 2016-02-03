@@ -28,12 +28,13 @@ Things that we need to be able to do in order to do a simple content-aware image
 
 1. Read in an image
 2. Calculate the energy function for the whole image
-	a. Function to calculate the energy of a single pixel, given the values of its neighboring pixels
-	b. Function to calculate energy map for entire image
-	c. (extra) Display energy map of image as heat map
+	1. Function to calculate the energy of a single pixel, given the values of its neighboring pixels
+	2. Function to calculate energy map for entire image
+	3. (extra) Display energy map of image as heat map
 3. Find the seam of lowest energy
 4. Remove seam of lowest energy
 5. Repeat 2 through 4 until image is as small as specified
+6. Save resized image.
 
 ### Notes
 
