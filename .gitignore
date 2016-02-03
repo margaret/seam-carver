@@ -2,3 +2,5 @@
 imgs/*
 .idea/
 *~
+.DS_Store
+resizerenv/*
