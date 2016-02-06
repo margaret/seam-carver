@@ -4,7 +4,7 @@ Basic implementation of content-aware image resizing. Still in progress.
 
 Based on assignments from:
 
-http://www.cs.princeton.edu/courses/archive/spring13/cos226/assignments/seamCarving.html
+http://www.cs.princeton.edu/courses/archive/spring14/cos226/assignments/seamCarving.html
 
 http://cs.brown.edu/courses/cs129/results/proj3/taox/
 
@@ -20,7 +20,9 @@ Aight, I'm gonna just redo this, it was becoming kind of a mess, anyway.
 * Figure out which functions from the old version can be reused
 * Write stubs and unit tests for functions
 * Make the thing actually usable (start out with a command line program, maybe eventually get an interactive version up)
-* try other energy functions
+* try other energy functions (foward energy, etc)
+* use the numpy-optimized arithmetic functions
+* add face-detection
 
 ### Outline
 
