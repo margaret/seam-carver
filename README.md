@@ -4,22 +4,16 @@ Basic implementation of content-aware image resizing. Still in progress.
 
 Based on assignments from:
 
-http://www.cs.princeton.edu/courses/archive/spring14/cos226/assignments/seamCarving.html
+[UC Berkeley](https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/index.html), [Princeton](http://www.cs.princeton.edu/courses/archive/spring14/cos226/assignments/seamCarving.html), and [Brown's](http://cs.brown.edu/courses/cs129/results/proj3/taox/) computational image processing courses.
 
-http://cs.brown.edu/courses/cs129/results/proj3/taox/
+And the always-dependable [wikipedia page](https://en.wikipedia.org/wiki/Seam_carving).
 
-And the always-dependable wikipedia page
-
-https://en.wikipedia.org/wiki/Seam_carving
-
-Original paper
-
-https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/imret.pdf
+[Original paper](https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/imret.pdf) by Shai Avidan and Ariel Shamir.
 
 
 ### To do / In progress
 
-* write seam-finder
+* write seam-finder (lol)
 * Make the thing actually usable (start out with a command line program, maybe eventually get an interactive version up). Put in a couple of reasonable try-catch blocks.
 * try other energy functions (foward energy, etc)
 * optimizations - only recompute changed energies on each iteration
@@ -42,8 +36,8 @@ Things that we need to be able to do in order to do a simple content-aware image
 ### Notes
 
 * Uses the notation where img[x][y] means img[row][col], which is consistent with numpy arrays, but which is supposedly the opposite of the convention in image processing.
-* Keeping `seam_carver_old.py` around as reference file.
 * I'm working in Python 2 out of habit (all academic exercises are in Python 2, right??).
+* seam_carver.py cannot run as script as-is in a virtual env because of something simple probably that I just haven't looked up yet.
 
 
 ### Dependencies
