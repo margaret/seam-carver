@@ -1,3 +1,4 @@
+#!/usr/local/bin/python
 import sys
 import numpy as np
 from PIL import Image
@@ -46,7 +47,7 @@ def neighbors(img, row, col):
 		int coordinates for the pixel to calculate energy for
 	
 	:returns 
-		tuple of 3 numpy arrays [r,g,b]
+		tuple of 3 1-D numpy arrays [r,g,b]
 		   y0
 		x0 -- x1
 		   y1
@@ -86,11 +87,10 @@ def energy_map(img, fn):
 		and return a float.
 
 	:returns
-		numpy array with the same height and width as img, but each 
+		2-D numpy array with the same height and width as img, but each 
 		energy[x][y] is an int specifying the energy of that pixel
 
-	Not sure if we should be recasting into uint8.
-	Fix this later to use the numpy loop optimization thing, which I think is a thing.
+	Fix this later to use the numpy loop optimization things, which I think is a thing.
 	"""
 	energy = np.zeros(img.shape[:2])
 	for i,row in enumerate(img):
@@ -99,15 +99,88 @@ def energy_map(img, fn):
 	return energy
 
 
+def cumulative_energy_map(energy):
+	"""
+	https://en.wikipedia.org/wiki/Seam_carving#Dynamic_Programming
+	
+	:energy
+		numpy array produced by energy_map
+
+	:returns
+		3-D array with shape (height, width, 2) where each element of the matrix is
+		(cumulative energy, index of previous link)
+	"""
+	pass
+
+
+def find_seam(total_energy):
+	"""
+	:total_energy
+		output of cumulative_energy_map
+	
+	:returns
+		1-dimensional array the height of the image where each element is the
+		x-coordinate of the pixel to be removed at that y-coordinate.
+		e.g. [4,4,3,2] means "remove pixels (0,4), (1,4), (2,3), and (3,2)"
+	"""
+	pass
+
+
+def remove_seam(img, seam):
+	"""
+	:img
+		3-D numpy array representing the RGB image you want to resize
+	:seam
+		1-D numpy array of the seam to remove. Output of seam function
+	
+	:returns
+		3-D numpy array of the image that is 1 pixel shorter in width than
+		input img
+	"""
+	pass
+
+
 def display_energy_map(img_map):
 	"""
 	:img
-		array representing energy map, shaped like (height, width)
+		2-D array representing energy map, shaped like (height, width)
 	"""
-
-	normed = img_map / float(img_map.max())
-	scaled = normed * 255
+	scaled = img_map * 255 / float(img_map.max())
 	energy = Image.fromarray(scaled).show()
+
+
+def compress_image(full_img, cropped_pixels, energy_fn):
+	"""
+	Yo momma so fat, this bleeding-edge optimized seam-carving algorithm still
+	tryna compress her picture to normal size and it's been running all day.
+
+	:full_img
+		3-D numpy array of the image you want to crop.
+
+	:cropped_pixels
+		int - number of pixels you want to shave off the width. Aka how many
+		vertical seams to remove.
+
+	:energy_fn
+		energy function for energy_map to use. Should have the same interface
+		as dual_gradient_energy and simple_energy
+
+	:returns
+		3-D numpy array of your now cropped_pixels-slimmer image. 
+
+	(Also jk jk this is totally the naive implementation. Doesn't change how
+	fat yo momma is though.)
+	"""
+	# we practice a non-destructive philosophy around these parts
+	img = full_img.copy()
+
+	for i in range(cropped_pixels):
+		e_map = energy_map(img, energy_fn)
+		e_paths = cumulative_energy_map(e_map)
+		seam = find_seam(e_paths)
+		img = remove_seam(img, seam)
+
+	return img
 
 
 if __name__ == "__main__":

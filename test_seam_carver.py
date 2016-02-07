@@ -55,7 +55,6 @@ class UtilsTestCase(unittest.TestCase):
 		answer_left = ([255, 205, 255],[255, 204, 153],[255, 153, 51],[255, 255, 51])
 		assert_array_equal(pixels_left, answer_left)
 
-
 	def test_neighbors_on_col_edge(self):
 		pixels = neighbors(self.img_1, 3, 1)
 		answer = ([255, 255, 51],[255, 255, 255],[255, 204, 153],[255, 101, 153])

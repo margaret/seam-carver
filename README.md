@@ -8,21 +8,22 @@ http://www.cs.princeton.edu/courses/archive/spring14/cos226/assignments/seamCarv
 
 http://cs.brown.edu/courses/cs129/results/proj3/taox/
 
-### Update 2016-02-02
+And the always-dependable wikipedia page
 
-Aight, I'm gonna just redo this, it was becoming kind of a mess, anyway. 
+https://en.wikipedia.org/wiki/Seam_carving
+
+Original paper
+
+https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/imret.pdf
+
 
 ### To do / In progress
 
-* Set up
-	* requirements.txt for virtualenv
-* Write pseudocode for naively (no optimizations) resizing a single image
-* Figure out which functions from the old version can be reused
-* Write stubs and unit tests for functions
-* Make the thing actually usable (start out with a command line program, maybe eventually get an interactive version up)
+* write seam-finder
+* Make the thing actually usable (start out with a command line program, maybe eventually get an interactive version up). Put in a couple of reasonable try-catch blocks.
 * try other energy functions (foward energy, etc)
-* use the numpy-optimized arithmetic functions
-* add face-detection
+* optimizations - only recompute changed energies on each iteration
+* add face-detection or thing for specifying a preservation mask
 
 ### Outline
 
