@@ -10,6 +10,7 @@ And the always-dependable [wikipedia page](https://en.wikipedia.org/wiki/Seam_ca
 
 [Original paper](https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/imret.pdf) by Shai Avidan and Ariel Shamir.
 
+In this version, after installing the requirements, you can run `python seam_carver.py castle_small.jpg` in the top level of the directory and you can see two example energy maps for that image.
 
 ### To do / In progress
 
