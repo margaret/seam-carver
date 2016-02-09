@@ -14,6 +14,11 @@ In this version, after installing the requirements, you can run `python seam_car
 
 
 ### Usage
+#### Setup
+
+Create and activate a virtualenv.
+
+`pip install -r requirements.txt`
 
 Put the originals of the images you want to work with in the `imgs` directory. Currently only does dual gradient energy. You can manually change it to use the simple energy function, but dual gradient will probably work better.
 
@@ -37,6 +42,7 @@ Example: "Crop 32 pixels from the width of mountain_icon.jpg and save it as moun
 
 In this example, intermediate images will get saved in a folder called "mountain_icon_crop", and the final image will be saved to the current directory.
 
+
 ### Algorithm Outline
 
 Things that we need to be able to do in order to do a simple content-aware image resize in a single direction. The other direction can be done by rotating the image and shoving it through the exact same steps. 
@@ -59,6 +65,6 @@ Things that we need to be able to do in order to do a simple content-aware image
 
 ### Dependencies
 
-Numpy (installed as part of the SciPy pack) and Pillow (the active fork of PIL). At the moment PIL is just used for file i/o as all of the actual image manipulation is in numpy, but might use it later for other stuff.
-
-Standard `pip install -r requirements.txt`. I recommend installing this in a virtual environment because installing any of the Python scientific libraries is a pain, and while Anaconda is convenient, it can also potentially make installing other libraries/SDKs even more complicated. 
+* To install, you'll need Pip and virtualenv.
+* Numpy (installed as part of the SciPy pack) and Pillow (the active fork of PIL). At the moment PIL is just used for file i/o as all of the actual image manipulation is in numpy, but might use it later for other stuff.
+* tqdm for progress bar
