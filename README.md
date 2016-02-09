@@ -14,12 +14,29 @@ In this version, after installing the requirements, you can run `python seam_car
 
 ### To do / In progress
 
-* Make the thing actually usable (start out with a command line program, maybe eventually get an interactive version up). Put in a couple of reasonable try-catch blocks.
-* try other energy functions (foward energy, etc)
-* optimizations - only recompute changed energies on each iteration
-* add face-detection or thing for specifying a preservation mask
+* Clean up code
+	* Clean up docstrings
+	* Move test data into setUp method
+	* Write functions for common running different steps (e.g. just energy map or just display a seam) from an input file
+	* Write function to generate saved file name
+* Make command line usage (probably with argparse)
+	* Basic usage: `python seam_carver.py FILEPATH`
+	* Options
+		* energy function (default dual gradient)
+		* saved file name
+		* display initial energy map
+		* display / save initial seam
+		* display / save every n seams
+		* remove n seams per iterataion
+* Try other energy functions (foward energy, etc)
+* Optimizations
+	* Only recompute changed energies (triangle surrounding seam) on each iteration
+	* Option to remove multiple seams per pass
+	* Option to save every intermediate image or every n intermediate image (save as what? Numpy array? Bitmap? JPG/PNG?)
+* [Progress bar](https://github.com/tqdm/tqdm) instead of print statements
+* Add face-detection or thing for specifying a preservation mask
 
-### Outline
+### Algorithm Outline
 
 Things that we need to be able to do in order to do a simple content-aware image resize in a single direction. The other direction can be done by rotating the image and shoving it through the exact same steps. 
 
@@ -27,7 +44,6 @@ Things that we need to be able to do in order to do a simple content-aware image
 2. Calculate the energy function for the whole image
 	1. Function to calculate the energy of a single pixel, given the values of its neighboring pixels
 	2. Function to calculate energy map for entire image
-	3. (extra) Display energy map of image as heat map
 3. Find the seam of lowest energy
 4. Remove seam of lowest energy
 5. Repeat 2 through 4 until image is as small as specified
