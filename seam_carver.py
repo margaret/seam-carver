@@ -209,7 +209,7 @@ def display_seam(img, seam):
 	Image.fromarray(highlight).show()
 
 
-def resize_image(full_img, cropped_pixels, energy_fn, display=True, pad=False, savepoints=None, save_name=None):
+def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, savepoints=None, save_name=None):
 	"""
 	:full_img
 		3-D numpy array of the image you want to crop.
@@ -241,6 +241,8 @@ def resize_image(full_img, cropped_pixels, energy_fn, display=True, pad=False, s
 
 	:returns 3-D numpy array of your now cropped_pixels-slimmer image. 
 	"""
+	if savepoints == None:
+		savepoints = []
 	# we practice a non-destructive philosophy around these parts
 	img = full_img.copy()
 	base,ext = save_name.split('.')
@@ -252,21 +254,31 @@ def resize_image(full_img, cropped_pixels, energy_fn, display=True, pad=False, s
 		img = remove_seam(img, seam)
 		if i in savepoints:
 			temp_img = Image.fromarray(img)
-			temp_img.save(base+'/'+base+'_'+str(i).zfill(len(savepoints[-1]))+'.'+ext)
+			temp_img.save(base+'/'+base+'_'+str(i).zfill(len(str(savepoints[-1])))+'.'+ext)
 			if display:
 				temp_img.show()
 	return img
 
 
+def every_n(n, height):
+	return [i for i in xrange(1,height) if i%n==0]
+
+
 if __name__ == "__main__":
 	filename = sys.argv[1]
+	img = get_img_arr("imgs/" + filename)
 	savefilename = sys.argv[2]
 	crop = int(sys.argv[3])
-	img = get_img_arr("imgs/" + filename)
-	Image.fromarray(img).show()
-	every_20 = [i for i in xrange(1,img.shape[1]) if i%20==0]
-	cropped = resize_image(img, crop, dual_gradient_energy, savepoints=every_20, save_name='castle_small_dge.jpg')
-	print("Image cropped from {0} to {1}".format(img.shape, cropped.shape))
+	if len(sys.argv) == 5:
+		print "Saving intermediate images in folder {0}".format(savefilename.split('.')[0])
+		save_spacing = int(sys.argv[4])
+		savepoints = every_n(save_spacing, img.shape[1])
+		cropped = resize_image(img, crop, dual_gradient_energy, savepoints=savepoints, save_name=savefilename)
+	else:
+		cropped = resize_image(img, crop, dual_gradient_energy, save_name=savefilename)
+
+	print "Image cropped from {0} to {1}".format(img.shape[:2], cropped.shape[:2])
+	Image.fromarray(cropped).save(savefilename)
 
 	### Display the simple energy and dual gradient energy maps for input file ###
 	# dual_gradient_energy_map = energy_map(img, dual_gradient_energy)

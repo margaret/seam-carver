@@ -12,29 +12,30 @@ And the always-dependable [wikipedia page](https://en.wikipedia.org/wiki/Seam_ca
 
 In this version, after installing the requirements, you can run `python seam_carver.py castle_small.jpg` in the top level of the directory and you can see two example energy maps for that image.
 
-### To do / In progress
 
-* Clean up code
-	* Write functions for common running different steps (e.g. just energy map or just display a seam) from an input file
-	* Write function to generate saved file name?
-* Make command line usage (probably with argparse)
-	* Basic usage: `python seam_carver.py FILEPATH`
-	* Options
-		* energy function (default dual gradient)
-		* saved file name
-		* display initial energy map
-		* display / save initial seam
-		* display / save every n seams
-		* remove n seams per iterataion
-		* horizontal or vertical (default vertical seam removal, e.g. reduce image width)
-* Try other energy functions (foward energy, etc)
-* Add option for horizontal seam removal
-* Optimizations
-	* Only recompute changed energies (triangle surrounding seam) on each iteration
-	* Option to remove multiple seams per pass
-	* Option to save every intermediate image or every n intermediate image (save as what? Numpy array? Bitmap? JPG/PNG?)
-* [Progress bar](https://github.com/tqdm/tqdm) instead of print statements
-* Add face-detection or thing for specifying a preservation mask
+### Usage
+
+Put the originals of the images you want to work with in the `imgs` directory. Currently only does dual gradient energy. You can manually change it to use the simple energy function, but dual gradient will probably work better.
+
+Eventually going to set up argparse with more options, but for now:
+
+#### Basic
+
+`python seam_carver.py <file to crop> <name for cropped image> <# of pixels to crop off width>`
+
+Example: "Crop 50 pixels from the width of castle_small.jpg and save as castle_small_crop.jpg"
+
+`python seam_carver.py castle_small.jpg castle_small_crop.jpg 50`
+
+#### Save intermediate images
+
+`python seam_carver.py <file to crop> <name for cropped image> <# of pixels to crop> <interval at which to save image>`
+
+Example: "Crop 32 pixels from the width of mountain_icon.jpg and save it as mountain_icon_crop.jpg, and save every other iteration"
+
+`python seam_carver.py mountain_icon.jpg mountain_icon_crop.jpg 32 2`
+
+In this example, intermediate images will get saved in a folder called "mountain_icon_crop", and the final image will be saved to the current directory.
 
 ### Algorithm Outline
 
