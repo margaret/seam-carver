@@ -8,7 +8,9 @@ from seam_carver import (
 	dual_gradient_energy,
 	neighbors,
 	cumulative_energy,
-	find_seam
+	find_seam,
+	remove_seam,
+	display_seams
 )
 
 class UtilsTestCase(unittest.TestCase):
@@ -113,6 +115,16 @@ class UtilsTestCase(unittest.TestCase):
 		seam_result = find_seam(paths, start)
 		seam_key = [0.,1.,1.]
 		assert_array_equal(seam_result, seam_key)
+
+	def test_remove_seam(self):
+		seam = [0.,1.,1.]
+		cropped_result = remove_seam(self.img_3, seam)
+		cropped_key = np.array([
+			[4., 3., 5., 2.],
+			[3., 5., 2., 3.],
+			[5., 4., 2., 1.]
+		])
+		assert_array_equal(cropped_result, cropped_key)
 
 
 if __name__ == "__main__":

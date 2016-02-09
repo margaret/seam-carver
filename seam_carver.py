@@ -172,7 +172,8 @@ def remove_seam(img, seam):
 		3-D numpy array of the image that is 1 pixel shorter in width than
 		input img
 	"""
-	pass
+	height,width = img.shape[:2]
+	return np.array([np.delete(img[row], seam[row], axis=0) for row in xrange(height)])
 
 
 def display_energy_map(img_map):
@@ -182,6 +183,15 @@ def display_energy_map(img_map):
 	"""
 	scaled = img_map * 255 / float(img_map.max())
 	energy = Image.fromarray(scaled).show()
+
+
+def display_seam(img, seam):
+	highlight = img.copy()
+	height,width = img.shape[:2]
+	for i in xrange(height):
+		j = seam[i]
+		highlight[i][j] = np.array([255, 0, 0])
+	Image.fromarray(highlight).show()
 
 
 def resize_image(full_img, cropped_pixels, energy_fn):
@@ -202,24 +212,33 @@ def resize_image(full_img, cropped_pixels, energy_fn):
 	"""
 	# we practice a non-destructive philosophy around these parts
 	img = full_img.copy()
-
+	print("\n img is shape", img.shape)
 	for i in xrange(cropped_pixels):
 		e_map = energy_map(img, energy_fn)
 		e_paths, e_totals = cumulative_energy(e_map)
-		seam = find_seam(e_paths, list(e_totals[-1]).index(min(e_totals[-1])))
+		seam = find_seam(e_paths, seam_end(e_totals))
 		img = remove_seam(img, seam)
+		print("img is shape", img.shape)
 
 	return img
 
 
+def seam_end(energy_totals):
+	return list(energy_totals[-1]).index(min(energy_totals[-1]))
+
 if __name__ == "__main__":
-	# Display the simple energy and dual gradient energy maps for input file
 	filename = sys.argv[1]
 	img = get_img_arr("imgs/" + filename)
 	Image.fromarray(img).show()
+	cropped = resize_image(img, 400, dual_gradient_energy)
+	print(img.shape, cropped.shape)
+	new_img = Image.fromarray(cropped)
+	new_img.show()
+	new_img.save("landscape_dge_400.jpg")
 
-	dual_gradient_energy_map = energy_map(img, dual_gradient_energy)
-	display_energy_map(dual_gradient_energy_map)
+	### Display the simple energy and dual gradient energy maps for input file ###
+	# dual_gradient_energy_map = energy_map(img, dual_gradient_energy)
+	# display_energy_map(dual_gradient_energy_map)
 
-	simple_energy_map = energy_map(img, simple_energy)
-	display_energy_map(simple_energy_map)
+	# simple_energy_map = energy_map(img, simple_energy)
+	# display_energy_map(simple_energy_map)

@@ -14,7 +14,6 @@ In this version, after installing the requirements, you can run `python seam_car
 
 ### To do / In progress
 
-* write seam-finder (lol)
 * Make the thing actually usable (start out with a command line program, maybe eventually get an interactive version up). Put in a couple of reasonable try-catch blocks.
 * try other energy functions (foward energy, etc)
 * optimizations - only recompute changed energies on each iteration
