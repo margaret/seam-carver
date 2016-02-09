@@ -10,12 +10,13 @@ from seam_carver import (
 	cumulative_energy,
 	find_seam,
 	remove_seam,
-	display_seams
+	display_seam
 )
 
 class UtilsTestCase(unittest.TestCase):
 
 	def setUp(self):
+		nan = float('nan')
 		# numbers from the princeton site's project instructions
 		# http://www.cs.princeton.edu/courses/archive/spring14/cos226/assignments/seamCarving.html
 		self.img_1 = np.array([
@@ -33,8 +34,7 @@ class UtilsTestCase(unittest.TestCase):
 			[[211,120,173], [188,218,244], [214,103, 68], [163,166,246], [ 79,125,246], [211,201, 98]]
 		])
 
-		# for img_2
-		self.dual_gradient_energy_map = [
+		self.img_2_dual_gradient_energy_map = [
 			[57685.0, 	50893.0, 	91370.0, 	25418.0, 	33055.0, 	37246.0],
 			[15421.0, 	56334.0, 	22808.0, 	54796.0, 	11641.0, 	25496.0],
 			[12344.0, 	19236.0, 	52030.0, 	17708.0, 	44735.0, 	20663.0],
@@ -42,11 +42,16 @@ class UtilsTestCase(unittest.TestCase):
 			[32337.0, 	30796.0, 	4909.0, 	73334.0, 	40613.0, 	36556.0]
 		]
 
-
 		self.img_3 = np.array([
 			[1., 4., 3., 5., 2.],
 			[3., 2., 5., 2., 3.],
 			[5., 2., 4., 2., 1.]
+		])
+
+		self.img_3_paths = np.array([
+			[nan,nan,nan,nan,nan],
+			[0.,-1., 0., 1., 0.],
+			[1., 0.,-1., 0.,-1.]
 		])
 
 	def test_import_square(self):
@@ -84,35 +89,22 @@ class UtilsTestCase(unittest.TestCase):
 
 	def test_energy_map(self):
 		dge_map = energy_map(self.img_2, dual_gradient_energy)
-		assert_array_equal(dge_map, self.dual_gradient_energy_map)
+		assert_array_equal(dge_map, self.img_2_dual_gradient_energy_map)
 
 	def test_cumulative_energy(self):
-		nan = float('nan')
 		# numbers from wikipedia article
 		cumulative_energy_key = np.array([
 			[1., 4., 3., 5., 2.],
 			[4., 3., 8., 4., 5.],
 			[8., 5., 7., 6., 5.]
 		])
-		nan = float('nan')
-		paths_key = np.array([
-			[nan,nan,nan,nan,nan],
-			[0.,-1., 0., 1., 0.],
-			[1., 0.,-1., 0.,-1.]
-		])
 		results = cumulative_energy(self.img_3)
-		assert_array_equal(results[0], paths_key)
+		assert_array_equal(results[0], self.img_3_paths)
 		assert_array_equal(results[1], cumulative_energy_key)
 
 	def test_find_seam(self):
-		nan = float('nan')
 		start = 1.
-		paths = np.array([
-			[nan,nan,nan,nan,nan],
-			[0.,-1., 0., 1., 0.],
-			[1., 0.,-1., 0.,-1.]
-		])
-		seam_result = find_seam(paths, start)
+		seam_result = find_seam(self.img_3_paths, start)
 		seam_key = [0.,1.,1.]
 		assert_array_equal(seam_result, seam_key)
 

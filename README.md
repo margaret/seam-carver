@@ -28,7 +28,9 @@ In this version, after installing the requirements, you can run `python seam_car
 		* display / save initial seam
 		* display / save every n seams
 		* remove n seams per iterataion
+		* horizontal or vertical (default vertical seam removal, e.g. reduce image width)
 * Try other energy functions (foward energy, etc)
+* Add option for horizontal seam removal
 * Optimizations
 	* Only recompute changed energies (triangle surrounding seam) on each iteration
 	* Option to remove multiple seams per pass
@@ -42,12 +44,12 @@ Things that we need to be able to do in order to do a simple content-aware image
 
 1. Read in an image
 2. Calculate the energy function for the whole image
-	1. Function to calculate the energy of a single pixel, given the values of its neighboring pixels
-	2. Function to calculate energy map for entire image
-3. Find the seam of lowest energy
-4. Remove seam of lowest energy
-5. Repeat 2 through 4 until image is as small as specified
-6. Save resized image.
+	1. Calculate the energy of a single pixel, given the values of its neighboring pixels
+4. Calculate cumulative energy map and seam paths for image
+5. Find the seam of lowest energy
+6. Remove seam of lowest energy
+7. Repeat 2 through 6 until image is as small as specified
+8. Save resized image.
 
 ### Notes
 

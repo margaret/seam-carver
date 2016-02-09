@@ -3,14 +3,14 @@ import sys
 import numpy as np
 from PIL import Image
 
+
 def get_img_arr(filename):
 	"""
 	:string filename
 		path to png or jpg file to use
 
-	returns:
-		the image as an np.array (of uint8) shape (height, width, 3)
-		the pixel at arr[x][y] is the array [r,g,b]"""
+	:returns 3-D np.array (of uint8) shape (height, width, 3)
+		where the pixel at arr[x][y] is the array [r,g,b]"""
 	return np.array(Image.open(filename))
 
 
@@ -20,8 +20,8 @@ def simple_energy(x0, x1, y0, y1):
 	:params
 		The east/west/north/south neighbors of the pixel whose energy to calculate.
 		Each is an len-3 array [r,g,b]
-	:returns
-		float
+	:returns float
+		simple energy of pixel with those neighbors
 	"""
 	return sum(abs(x0-x1) + abs(y0-y1))
 
@@ -33,8 +33,8 @@ def dual_gradient_energy(x0, x1, y0, y1):
 	:params
 		The east/west/north/south neighbors of the pixel whose energy to calculate.
 		Each is an len-3 array [r,g,b]
-	:returns
-		float
+	:returns float
+		dual gradient energy at the pixel with those neighbors
 	"""
 	return sum(pow((x0-x1), 2) + pow((y0-y1), 2))
 
@@ -42,12 +42,11 @@ def dual_gradient_energy(x0, x1, y0, y1):
 def neighbors(img, row, col):
 	"""
 	:img
-		the np array representing the image
+		the 3-D np array representing the image
 	:row, col
 		int coordinates for the pixel to calculate energy for
 	
-	:returns 
-		tuple of 3 1-D numpy arrays [r,g,b]
+	:returns tuple of 3 1-D numpy arrays [r,g,b]
 		   y0
 		x0 -- x1
 		   y1
@@ -86,11 +85,8 @@ def energy_map(img, fn):
 		The energy function to use. Should take in 4 pixels
 		and return a float.
 
-	:returns
-		2-D numpy array with the same height and width as img, but each 
-		energy[x][y] is an int specifying the energy of that pixel
-
-	Fix this later to use the numpy loop optimization things, which I think is a thing.
+	:returns 2-D numpy array with the same height and width as img
+		Each energy[x][y] is an int specifying the energy of that pixel
 	"""
 	energy = np.zeros(img.shape[:2])
 	for i,row in enumerate(img):
@@ -106,9 +102,9 @@ def cumulative_energy(energy):
 	:energy
 		2-D numpy array produced by energy_map
 
-	:returns
-		Tuple of 2 2-D array with shape (height, width) where each element of the matrix is
-		(cumulative energy, index of previous link). The top row of paths will have NaN.
+	:returns tuple of 2 2-D array with shape (height, width).
+		paths has the x-offset of the previous seam element for each pixel.
+		path_energies has the cumulative energy at each pixel.
 	"""
 	height, width = energy.shape
 	paths = np.zeros((height,width))
@@ -146,10 +142,10 @@ def find_seam(paths, end_x):
 	:end_x
 		int or float, the x-coordinate of the end of the seam
 		list(energies[-1]).index(min(energies[-1]))
-	:returns
-		1-dimensional array the height of the image where each element is the
-		x-coordinate of the pixel to be removed at that y-coordinate.
-		e.g. [4,4,3,2] means "remove pixels (0,4), (1,4), (2,3), and (3,2)"
+	:returns 1-D array with length == height of the image
+		each element is the x-coordinate of the pixel to be removed at that
+		y-coordinate. e.g. [4,4,3,2] means "remove pixels (0,4), (1,4), (2,3),
+		and (3,2)"
 	"""
 	height,width = paths.shape[:2]
 	seam = [end_x]
@@ -168,9 +164,8 @@ def remove_seam(img, seam):
 	:seam
 		1-D numpy array of the seam to remove. Output of seam function
 	
-	:returns
-		3-D numpy array of the image that is 1 pixel shorter in width than
-		input img
+	:returns 3-D numpy array of the image that is 1 pixel shorter in width than
+		the input img
 	"""
 	height,width = img.shape[:2]
 	return np.array([np.delete(img[row], seam[row], axis=0) for row in xrange(height)])
@@ -186,6 +181,13 @@ def display_energy_map(img_map):
 
 
 def display_seam(img, seam):
+	"""
+	:img
+		3-D numpy array representing the image
+	:seam
+		1-D numpy array with length == height of img representing the
+		x-coordinates of the pixel to remove from each row.
+	"""
 	highlight = img.copy()
 	height,width = img.shape[:2]
 	for i in xrange(height):
@@ -207,8 +209,7 @@ def resize_image(full_img, cropped_pixels, energy_fn):
 		energy function for energy_map to use. Should have the same interface
 		as dual_gradient_energy and simple_energy
 
-	:returns
-		3-D numpy array of your now cropped_pixels-slimmer image. 
+	:returns 3-D numpy array of your now cropped_pixels-slimmer image. 
 	"""
 	# we practice a non-destructive philosophy around these parts
 	img = full_img.copy()
@@ -224,7 +225,16 @@ def resize_image(full_img, cropped_pixels, energy_fn):
 
 
 def seam_end(energy_totals):
+	"""
+	:energy_totals
+		2-D numpy array with the cumulative energy of each pixel in the image
+
+	:returns float
+		the x-coordinate of the bottom of the seam for the image with these
+		cumulative energies
+	"""
 	return list(energy_totals[-1]).index(min(energy_totals[-1]))
+
 
 if __name__ == "__main__":
 	filename = sys.argv[1]
