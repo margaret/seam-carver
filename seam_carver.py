@@ -2,7 +2,7 @@
 import sys
 import numpy as np
 from PIL import Image
-
+from tqdm import trange
 
 def get_img_arr(filename):
 	"""
@@ -133,6 +133,18 @@ def cumulative_energy(energy):
 	return paths, path_energies
 
 
+def seam_end(energy_totals):
+	"""
+	:energy_totals
+		2-D numpy array with the cumulative energy of each pixel in the image
+
+	:returns float
+		the x-coordinate of the bottom of the seam for the image with these
+		cumulative energies
+	"""
+	return list(energy_totals[-1]).index(min(energy_totals[-1]))
+
+
 def find_seam(paths, end_x):
 	"""
 	:paths
@@ -213,38 +225,26 @@ def resize_image(full_img, cropped_pixels, energy_fn):
 	"""
 	# we practice a non-destructive philosophy around these parts
 	img = full_img.copy()
-	print("\n img is shape", img.shape)
-	for i in xrange(cropped_pixels):
+	for i in trange(cropped_pixels, desc='cropping image by {0} pixels'.format(cropped_pixels)):
 		e_map = energy_map(img, energy_fn)
 		e_paths, e_totals = cumulative_energy(e_map)
 		seam = find_seam(e_paths, seam_end(e_totals))
 		img = remove_seam(img, seam)
-		print("img is shape", img.shape)
 
 	return img
 
 
-def seam_end(energy_totals):
-	"""
-	:energy_totals
-		2-D numpy array with the cumulative energy of each pixel in the image
-
-	:returns float
-		the x-coordinate of the bottom of the seam for the image with these
-		cumulative energies
-	"""
-	return list(energy_totals[-1]).index(min(energy_totals[-1]))
-
-
 if __name__ == "__main__":
 	filename = sys.argv[1]
+	savefilename = sys.argv[2]
+	crop = int(sys.argv[3])
 	img = get_img_arr("imgs/" + filename)
 	Image.fromarray(img).show()
-	cropped = resize_image(img, 400, dual_gradient_energy)
+	cropped = resize_image(img, crop, dual_gradient_energy)
 	print(img.shape, cropped.shape)
 	new_img = Image.fromarray(cropped)
 	new_img.show()
-	new_img.save("landscape_dge_400.jpg")
+	new_img.save(savefilename)
 
 	### Display the simple energy and dual gradient energy maps for input file ###
 	# dual_gradient_energy_map = energy_map(img, dual_gradient_energy)

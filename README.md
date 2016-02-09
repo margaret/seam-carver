@@ -15,10 +15,8 @@ In this version, after installing the requirements, you can run `python seam_car
 ### To do / In progress
 
 * Clean up code
-	* Clean up docstrings
-	* Move test data into setUp method
 	* Write functions for common running different steps (e.g. just energy map or just display a seam) from an input file
-	* Write function to generate saved file name
+	* Write function to generate saved file name?
 * Make command line usage (probably with argparse)
 	* Basic usage: `python seam_carver.py FILEPATH`
 	* Options
