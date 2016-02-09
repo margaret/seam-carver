@@ -99,31 +99,66 @@ def energy_map(img, fn):
 	return energy
 
 
-def cumulative_energy_map(energy):
+def cumulative_energy(energy):
 	"""
 	https://en.wikipedia.org/wiki/Seam_carving#Dynamic_Programming
 	
 	:energy
-		numpy array produced by energy_map
+		2-D numpy array produced by energy_map
 
 	:returns
-		3-D array with shape (height, width, 2) where each element of the matrix is
-		(cumulative energy, index of previous link)
+		Tuple of 2 2-D array with shape (height, width) where each element of the matrix is
+		(cumulative energy, index of previous link). The top row of paths will have NaN.
 	"""
-	pass
-
-
-def find_seam(total_energy):
-	"""
-	:total_energy
-		output of cumulative_energy_map
+	height, width = energy.shape
+	paths = np.zeros((height,width))
+	path_energies = np.zeros((height,width))
 	
+	for i in xrange(height):
+		for j in xrange(width):
+			target_energy = energy[i][j]
+			if i == 0:
+				path_energies[i][j] = target_energy
+				paths[i][j] = float('nan')
+			else:
+				if j == 0:
+					prev_energies = list(path_energies[i-1, j:j+2])
+					least_energy = min(prev_energies)
+					path_energies[i][j] =  target_energy + least_energy
+					paths[i][j] = prev_energies.index(least_energy)
+				else:
+					# Note that indexing past the right edge of a row, as will happen
+					# if j == width-1, will simply return the part of the slice that exists
+					prev_energies = list(path_energies[i-1, j-1:j+2])
+					least_energy = min(prev_energies)
+					path_energies[i][j] =  target_energy + least_energy
+					paths[i][j] = prev_energies.index(least_energy) - 1
+
+	return paths, path_energies
+
+
+def find_seam(paths, end_x):
+	"""
+	:paths
+		output of cumulative_energy_map
+		2-D array where each element of the matrix is the offset of the index
+		to the previous pixel in the seam
+	:end_x
+		int or float, the x-coordinate of the end of the seam
+		list(energies[-1]).index(min(energies[-1]))
 	:returns
 		1-dimensional array the height of the image where each element is the
 		x-coordinate of the pixel to be removed at that y-coordinate.
 		e.g. [4,4,3,2] means "remove pixels (0,4), (1,4), (2,3), and (3,2)"
 	"""
-	pass
+	height,width = paths.shape[:2]
+	seam = [end_x]
+	for i in xrange(height-1,0,-1):
+		cur_x = seam[-1]
+		offset_of_prev_x = paths[i][cur_x]
+		seam.append(cur_x + offset_of_prev_x)
+	seam.reverse()
+	return seam
 
 
 def remove_seam(img, seam):
@@ -149,11 +184,8 @@ def display_energy_map(img_map):
 	energy = Image.fromarray(scaled).show()
 
 
-def compress_image(full_img, cropped_pixels, energy_fn):
+def resize_image(full_img, cropped_pixels, energy_fn):
 	"""
-	Yo momma so fat, this bleeding-edge optimized seam-carving algorithm still
-	tryna compress her picture to normal size and it's been running all day.
-
 	:full_img
 		3-D numpy array of the image you want to crop.
 
@@ -167,17 +199,14 @@ def compress_image(full_img, cropped_pixels, energy_fn):
 
 	:returns
 		3-D numpy array of your now cropped_pixels-slimmer image. 
-
-	(Also jk jk this is totally the naive implementation. Doesn't change how
-	fat yo momma is though.)
 	"""
 	# we practice a non-destructive philosophy around these parts
 	img = full_img.copy()
 
-	for i in range(cropped_pixels):
+	for i in xrange(cropped_pixels):
 		e_map = energy_map(img, energy_fn)
-		e_paths = cumulative_energy_map(e_map)
-		seam = find_seam(e_paths)
+		e_paths, e_totals = cumulative_energy(e_map)
+		seam = find_seam(e_paths, list(e_totals[-1]).index(min(e_totals[-1])))
 		img = remove_seam(img, seam)
 
 	return img
