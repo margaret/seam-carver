@@ -1,5 +1,6 @@
 *.pyc
 imgs/*
+generated_imgs/*
 .idea/
 *~
 .DS_Store

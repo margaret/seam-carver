@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 import sys
+import os
 import numpy as np
 from PIL import Image
 from tqdm import trange
@@ -208,7 +209,7 @@ def display_seam(img, seam):
 	Image.fromarray(highlight).show()
 
 
-def resize_image(full_img, cropped_pixels, energy_fn):
+def resize_image(full_img, cropped_pixels, energy_fn, display=True, pad=False, savepoints=None, save_name=None):
 	"""
 	:full_img
 		3-D numpy array of the image you want to crop.
@@ -221,16 +222,39 @@ def resize_image(full_img, cropped_pixels, energy_fn):
 		energy function for energy_map to use. Should have the same interface
 		as dual_gradient_energy and simple_energy
 
+	:savepoints
+		list of ints indicating iterations on which to save the image
+
+	:save_name
+		str - required if savepoints is present. Base name for saved images.
+		Must include file extension. E.g. if savename is 'castle_small_dge.jpg'
+		and savepoints is a list of mod 20, then 'castle_small_dge_20.jpg',
+		'castle_small_dge_20.jpg', etc. will be stored in the directory 
+		'castle_small_dge/'
+
+	:pad
+		bool - whether or not to pad the saved image with a black border
+		(not implemented)
+
+	:display
+		bool - whether or not to display intermediate images
+
 	:returns 3-D numpy array of your now cropped_pixels-slimmer image. 
 	"""
 	# we practice a non-destructive philosophy around these parts
 	img = full_img.copy()
+	base,ext = save_name.split('.')
+	os.mkdir(base)
 	for i in trange(cropped_pixels, desc='cropping image by {0} pixels'.format(cropped_pixels)):
 		e_map = energy_map(img, energy_fn)
 		e_paths, e_totals = cumulative_energy(e_map)
 		seam = find_seam(e_paths, seam_end(e_totals))
 		img = remove_seam(img, seam)
-
+		if i in savepoints:
+			temp_img = Image.fromarray(img)
+			temp_img.save(base+'/'+base+'_'+str(i).zfill(len(savepoints[-1]))+'.'+ext)
+			if display:
+				temp_img.show()
 	return img
 
 
@@ -240,11 +264,9 @@ if __name__ == "__main__":
 	crop = int(sys.argv[3])
 	img = get_img_arr("imgs/" + filename)
 	Image.fromarray(img).show()
-	cropped = resize_image(img, crop, dual_gradient_energy)
-	print(img.shape, cropped.shape)
-	new_img = Image.fromarray(cropped)
-	new_img.show()
-	new_img.save(savefilename)
+	every_20 = [i for i in xrange(1,img.shape[1]) if i%20==0]
+	cropped = resize_image(img, crop, dual_gradient_energy, savepoints=every_20, save_name='castle_small_dge.jpg')
+	print("Image cropped from {0} to {1}".format(img.shape, cropped.shape))
 
 	### Display the simple energy and dual gradient energy maps for input file ###
 	# dual_gradient_energy_map = energy_map(img, dual_gradient_energy)
