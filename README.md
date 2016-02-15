@@ -2,9 +2,9 @@
 
 Basic implementation of content-aware image resizing. Still in progress! This is mostly for run, as Photoshop has an implementation of this called [Content Aware Scaling](https://helpx.adobe.com/photoshop/using/content-aware-scaling.html).
 
-![castle_h](castle_small_horizontal.gif)
+![castle_h](imgs/castle_small_horizontal.gif)
 
-![castle_v](castle_small_vertical.gif)
+![castle_v](imgs/castle_small_vertical.gif)
 
 Based on assignments from:
 
