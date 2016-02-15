@@ -1,16 +1,12 @@
 # seam-carver
 
-Basic implementation of content-aware image resizing. Still in progress! This is mostly for run, as Photoshop has an implementation of this called [Content Aware Scaling](https://helpx.adobe.com/photoshop/using/content-aware-scaling.html).
+Basic implementation of content-aware image resizing. Still in progress! This is mostly for fun, as Photoshop has an implementation of this called [Content Aware Scaling](https://helpx.adobe.com/photoshop/using/content-aware-scaling.html).
 
-![castle_h](imgs/castle_small_horizontal.gif)
+![castle_horizontal](imgs/castle_small_horizontal.gif)
 
-![castle_v](imgs/castle_small_vertical.gif)
+![castle_vertical](imgs/castle_small_vertical.gif)
 
-Based on assignments from:
-
-[UC Berkeley](https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/index.html), [Princeton](http://www.cs.princeton.edu/courses/archive/spring14/cos226/assignments/seamCarving.html), and [Brown's](http://cs.brown.edu/courses/cs129/results/proj3/taox/) computational image processing courses.
-
-And the always-dependable [wikipedia page](https://en.wikipedia.org/wiki/Seam_carving).
+Based on assignments from [UC Berkeley](https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/index.html), [Princeton](http://www.cs.princeton.edu/courses/archive/spring14/cos226/assignments/seamCarving.html), and [Brown's](http://cs.brown.edu/courses/cs129/results/proj3/taox/) computational image processing courses, and the always-dependable [Wikipedia page](https://en.wikipedia.org/wiki/Seam_carving).
 
 [Original paper](https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/imret.pdf) by Shai Avidan and Ariel Shamir.
 
