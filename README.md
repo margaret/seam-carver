@@ -38,7 +38,7 @@ Example: "Crop 50 pixels from the width of castle_small.jpg and save as castle_s
 
 #### Save intermediate images
 
-`python seam_carver.py <file to crop> <name for cropped image> <# of pixels to crop> <interval at which to save image>`
+`python seam_carver.py <file to crop> <name for cropped image> <# of pixels to crop> <interval at which to save image> <h/v>`
 
 Example: "Crop 32 pixels from the height of mountain_icon.jpg and save it as mountain_icon_crop.jpg, and save every other iteration"
 
