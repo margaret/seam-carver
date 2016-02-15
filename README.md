@@ -1,6 +1,6 @@
 # seam-carver
 
-Basic implementation of content-aware image resizing. Still in progress. 
+Basic implementation of content-aware image resizing. Still in progress! This is mostly for run, as Photoshop has an implementation of this called [Content Aware Scaling](https://helpx.adobe.com/photoshop/using/content-aware-scaling.html).
 
 Based on assignments from:
 
@@ -9,8 +9,6 @@ Based on assignments from:
 And the always-dependable [wikipedia page](https://en.wikipedia.org/wiki/Seam_carving).
 
 [Original paper](https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/imret.pdf) by Shai Avidan and Ariel Shamir.
-
-In this version, after installing the requirements, you can run `python seam_carver.py castle_small.jpg` in the top level of the directory and you can see two example energy maps for that image.
 
 
 ### Usage
