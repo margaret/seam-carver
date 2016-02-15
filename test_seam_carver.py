@@ -3,16 +3,20 @@ from numpy.testing import assert_array_equal
 from PIL import Image
 import unittest
 from seam_carver import (
-    get_img_arr,
     energy_map,
-    dual_gradient_energy,
     neighbors,
     cumulative_energy,
     find_seam,
     remove_seam,
     display_seam
 )
-
+from energy_functions import (
+    dual_gradient_energy
+)
+from utils import (
+    get_img_arr,
+    new_shape_for_ratio
+)
 class UtilsTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -117,6 +121,15 @@ class UtilsTestCase(unittest.TestCase):
             [5., 4., 2., 1.]
         ])
         assert_array_equal(cropped_result, cropped_key)
+
+    def test_scaling(self):
+        im = get_img_arr('imgs/castle_small.jpg')
+
+        h, w = new_shape_for_ratio(im, 315, 851, scale_x=False)
+        assert(abs(float(h)/w - 315/851.0) < 0.001)
+
+        h, w = new_shape_for_ratio(im, 215, 851)
+        assert(abs(float(h)/w - 215/851.0) < 0.001)
 
 
 if __name__ == "__main__":

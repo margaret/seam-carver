@@ -62,9 +62,11 @@ def bulk_pad(unpadded, padded, height, width):
         padded.save(padded + '/' + f)
 
 
-def new_shape_for_ratio(img, h, w, shrink=False):
+def new_shape_for_ratio(img, h, w, scale_x=True):
     """
     Calculate the height and width of an image scaled to the ratio h:w
+    - Facebook cover photos are 851px wide by 315px tall, and must be at least
+    399px wide and 150px tall.
 
     :img
         3-D numpy array shape=(height,width,3) representing an image
@@ -72,13 +74,23 @@ def new_shape_for_ratio(img, h, w, shrink=False):
         int - height of desired ratio
     :w
         int - width of desired ratio
-    :shrink
-        bool - whether to return the largest smaller crop of the image
+    :scale_x
+        bool - whether to shrink the image horizontally
 
     :returns
         tuple (int, int) of the new height and width in pixels
     """
-    raise NotImplementedError
+    old_height, old_width = img.shape[:2]
+    if scale_x:
+        new_height = old_height
+        scale = w / float(h)
+        new_width = int(old_height * scale)
+    else:
+        new_width = old_width
+        scale = h / float(w)
+        new_height = int(old_width * scale)
+
+    return new_height, new_width
 
 
 def every_n(n, height):
@@ -89,4 +101,6 @@ def every_n(n, height):
     """
     return [i for i in xrange(1,height) if i%n==0]
 
-                
+
+if __name__ == "__main__":
+    pass

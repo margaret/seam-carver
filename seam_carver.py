@@ -9,7 +9,7 @@ from energy_functions import (
     dual_gradient_energy,
 )
 from utils import (
-    pad_image,
+    pad_img,
     every_n,
     get_img_arr,
 )
