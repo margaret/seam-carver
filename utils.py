@@ -43,6 +43,25 @@ def pad_img(img, target_height, target_width, center=False):
     return new_im
 
 
+def bulk_pad(unpadded, padded, height, width):
+    """
+    Script to pad all images in a directory to the same shape.
+
+    :unpadded
+        str - name of directory containing images to pad. 
+    :padded
+        str - name of directory (should already exist) to place padded images.
+    :height
+        int - height in pixels to pad images to
+    :width
+        int - width in pixels to pad images to
+    """
+    for f in os.listdir(unpadded):
+        im = get_img_arr(unpadded + '/' + f)
+        padded = pad_img(im, 279, 411)
+        padded.save(padded + '/' + f)
+
+
 def new_shape_for_ratio(img, h, w, shrink=False):
     """
     Calculate the height and width of an image scaled to the ratio h:w
@@ -70,12 +89,4 @@ def every_n(n, height):
     """
     return [i for i in xrange(1,height) if i%n==0]
 
-
-if __name__ == "__main__":
-    for f in os.listdir("castle_small_dge/"):
-        if f.endswith(".jpg"):
-        	im = get_img_arr('castle_small_dge/'+f)
-        	padded = pad_img(im, 279, 411)
-        	padded.save('castle_small_padded/' + f)
-
-            
+                
