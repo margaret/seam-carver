@@ -4,7 +4,7 @@
 	* add license
 	* Write functions for common running different steps (e.g. just energy map or just display a seam) from an input file
 * Make command line usage (use argparse)
-	* Basic usage: `python seam_carver.py FILEPATH`
+	* Basic usage: `python seam_carver.py FILEPATH PIXELS AXIS`
 	* Options
 		* energy function (default dual gradient)
 		* saved file name
