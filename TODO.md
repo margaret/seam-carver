@@ -1,10 +1,8 @@
 ### To do / In progress
 
 * Clean up code
-	* separate To do into a TODO.md file
 	* add license
 	* Write functions for common running different steps (e.g. just energy map or just display a seam) from an input file
-	* Write function to generate saved file name?
 * Make command line usage (use argparse)
 	* Basic usage: `python seam_carver.py FILEPATH`
 	* Options

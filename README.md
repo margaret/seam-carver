@@ -63,8 +63,8 @@ Things that we need to be able to do in order to do a simple content-aware image
 ### Notes
 
 * Uses the notation where img[x][y] means img[row][col], which is consistent with numpy arrays, but which is supposedly the opposite of the convention in image processing.
-* I'm working in Python 2 out of habit (all academic exercises are in Python 2, right??).
 * seam_carver.py cannot run as script as-is in a virtual env because of something simple probably that I just haven't looked up yet.
+* Currently only uses dual energy gradient energy function. As you can see in the vertical resizing example, it slowly decapitates the human figure and ends up scoring the grass as important (probably) due to the many small changes in color across the grass. Different energy functions work well with different types of images. First priority at this point is integrating argparse, but after that I'll see about adding more energy function options and masking.
 
 
 ### Dependencies
