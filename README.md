@@ -2,7 +2,9 @@
 
 Basic implementation of content-aware image resizing. Still in progress! This is mostly for run, as Photoshop has an implementation of this called [Content Aware Scaling](https://helpx.adobe.com/photoshop/using/content-aware-scaling.html).
 
-![castle](castle_small.gif)
+![castle_h](castle_small_horizontal.gif)
+
+![castle_v](castle_small_vertical.gif)
 
 Based on assignments from:
 
@@ -26,19 +28,21 @@ Eventually going to set up argparse with more options, but for now:
 
 #### Basic
 
-`python seam_carver.py <file to crop> <name for cropped image> <# of pixels to crop off width>`
+`python seam_carver.py <file to crop> <name for cropped image> <# of pixels to crop off width> <h/v>`
+
+The last option is either h or v, indicating horizontal or vertical resizing. 
 
 Example: "Crop 50 pixels from the width of castle_small.jpg and save as castle_small_crop.jpg"
 
-`python seam_carver.py castle_small.jpg castle_small_crop.jpg 50`
+`python seam_carver.py castle_small.jpg castle_small_crop.jpg 50 h`
 
 #### Save intermediate images
 
 `python seam_carver.py <file to crop> <name for cropped image> <# of pixels to crop> <interval at which to save image>`
 
-Example: "Crop 32 pixels from the width of mountain_icon.jpg and save it as mountain_icon_crop.jpg, and save every other iteration"
+Example: "Crop 32 pixels from the height of mountain_icon.jpg and save it as mountain_icon_crop.jpg, and save every other iteration"
 
-`python seam_carver.py mountain_icon.jpg mountain_icon_crop.jpg 32 2`
+`python seam_carver.py mountain_icon.jpg mountain_icon_crop.jpg 32 2 v`
 
 In this example, intermediate images will get saved in a folder called "mountain_icon_crop", and the final image will be saved to the current directory.
 

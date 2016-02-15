@@ -57,9 +57,10 @@ def bulk_pad(unpadded, padded, height, width):
         int - width in pixels to pad images to
     """
     for f in os.listdir(unpadded):
-        im = get_img_arr(unpadded + '/' + f)
-        padded = pad_img(im, 279, 411)
-        padded.save(padded + '/' + f)
+        if not f.startswith('.'):
+            im = get_img_arr(unpadded + '/' + f)
+            padded_img = pad_img(im, height, width)
+            padded_img.save(padded + '/' + f)
 
 
 def new_shape_for_ratio(img, h, w, scale_x=True):
@@ -103,4 +104,4 @@ def every_n(n, height):
 
 
 if __name__ == "__main__":
-    pass
+    bulk_pad('castle_small_v', 'castle_small_v_pad', 279, 411)

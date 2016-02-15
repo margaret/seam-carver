@@ -185,7 +185,7 @@ def display_seam(img, seam):
     Image.fromarray(highlight).show()
 
 
-def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, savepoints=None, save_name=None):
+def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, savepoints=None, save_name=None, flipped=False):
     """
     :full_img
         3-D numpy array of the image you want to crop.
@@ -216,14 +216,15 @@ def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, 
     # we practice a non-destructive philosophy around these parts
     img = full_img.copy()
     base,ext = save_name.split('.')
-    os.mkdir(base)
+    if savepoints:
+        os.mkdir(base)
     for i in trange(cropped_pixels, desc='cropping image by {0} pixels'.format(cropped_pixels)):
         e_map = energy_map(img, energy_fn)
         e_paths, e_totals = cumulative_energy(e_map)
         seam = find_seam(e_paths, seam_end(e_totals))
         img = remove_seam(img, seam)
         if i in savepoints:
-            temp_img = Image.fromarray(img)
+            temp_img = Image.fromarray(np.transpose(img, axes=(1,0,2)))
             temp_img.save(base+'/'+base+'_'+str(i).zfill(len(str(savepoints[-1])))+'.'+ext)
             if display:
                 temp_img.show()
@@ -231,18 +232,27 @@ def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, 
 
 
 if __name__ == "__main__":
+    # to-do: use argparse library
+    print sys.argv
     filename = sys.argv[1]
     img = get_img_arr("imgs/" + filename)
     savefilename = sys.argv[2]
     crop = int(sys.argv[3])
-    if len(sys.argv) == 5:
+    axis = sys.argv[4] # h or v
+    flip = False
+    if axis == 'v':
+        img = np.transpose(img, axes=(1,0,2))
+        flip = True
+    if len(sys.argv) == 6:
         print "Saving intermediate images in folder {0}".format(savefilename.split('.')[0])
-        save_spacing = int(sys.argv[4])
+        save_spacing = int(sys.argv[5])
         savepoints = every_n(save_spacing, img.shape[1])
-        cropped = resize_image(img, crop, dual_gradient_energy, savepoints=savepoints, save_name=savefilename)
+        cropped = resize_image(img, crop, dual_gradient_energy, savepoints=savepoints, save_name=savefilename, flipped=flip)
     else:
-        cropped = resize_image(img, crop, dual_gradient_energy, save_name=savefilename)
-
+        print 'simple crop'
+        cropped = resize_image(img, crop, dual_gradient_energy, save_name=savefilename, flipped=flip)
+    if axis == 'v':
+        cropped = np.transpose(cropped, axes=(1,0,2))
     print "Image cropped from {0} to {1}".format(img.shape[:2], cropped.shape[:2])
     Image.fromarray(cropped).save(savefilename)
 
