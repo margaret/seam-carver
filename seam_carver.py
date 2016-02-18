@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 import sys
 import os
+import argparse
 import numpy as np
 from PIL import Image
 from tqdm import trange
@@ -185,7 +186,7 @@ def display_seam(img, seam):
     Image.fromarray(highlight).show()
 
 
-def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, savepoints=None, save_name=None, flipped=False):
+def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, savepoints=None, save_name=None, rotated=False):
     """
     :full_img
         3-D numpy array of the image you want to crop.
@@ -223,38 +224,62 @@ def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, 
         e_paths, e_totals = cumulative_energy(e_map)
         seam = find_seam(e_paths, seam_end(e_totals))
         img = remove_seam(img, seam)
+        temp_img = img.copy()
         if i in savepoints:
-            temp_img = Image.fromarray(np.transpose(img, axes=(1,0,2)))
-            temp_img.save(base+'/'+base+'_'+str(i).zfill(len(str(savepoints[-1])))+'.'+ext)
+            if pad:
+                temp_img = np.array(pad_img(temp_img, full_img.shape[0], full_img.shape[1]))
+            if rotated:
+                temp_img = Image.fromarray(np.transpose(temp_img, axes=(1,0,2)))
+            else:
+                temp_img = Image.fromarray(temp_img)
+            temp_img.save(base+'/'+base.split('/')[-1]+'_'+str(i).zfill(len(str(savepoints[-1])))+'.'+ext)
             if display:
                 temp_img.show()
     return img
 
 
-if __name__ == "__main__":
-    # to-do: use argparse library
-    print sys.argv
-    filename = sys.argv[1]
-    img = get_img_arr("imgs/" + filename)
-    savefilename = sys.argv[2]
-    crop = int(sys.argv[3])
-    axis = sys.argv[4] # h or v
-    flip = False
-    if axis == 'v':
+def main():
+    parser = argparse.ArgumentParser(description="Intelligently crop an image along one axis")
+    parser.add_argument('input_file')
+    parser.add_argument('-a', '--axis', required=True, help="What axis to shrink the image on.", choices=['x', 'y'])
+    parser.add_argument('-p', '--pixels', type=int, required=True, help="How many pixels to shrink the image by.")
+
+    parser.add_argument('-o', '--output', help="What to name the new cropped image.")
+    parser.add_argument('-i', '--interval', type=int, help="Save every i intermediate images.")
+    parser.add_argument('-b', '--border', type=bool, help="Whether or not to pad the cropped images to the size of the original")
+
+    args = vars(parser.parse_args())
+    print args
+
+    img = get_img_arr(args['input_file'])
+
+    if args['axis'] == 'y':
         img = np.transpose(img, axes=(1,0,2))
-        flip = True
-    if len(sys.argv) == 6:
-        print "Saving intermediate images in folder {0}".format(savefilename.split('.')[0])
-        save_spacing = int(sys.argv[5])
-        savepoints = every_n(save_spacing, img.shape[1])
-        cropped = resize_image(img, crop, dual_gradient_energy, savepoints=savepoints, save_name=savefilename, flipped=flip)
+
+    if args['output'] is None:
+        name = args['input_file'].split('.')
+        args['output'] = name[0] + '_crop.' + name[1]
+
+    savepoints = every_n(args['interval'], img.shape[1]) if args['interval'] else None
+
+    cropped_img = resize_image(img, args['pixels'], dual_gradient_energy, save_name=args['output'], savepoints=savepoints, rotated=args['axis']=='y', pad=args['border'])
+
+    if args['axis']=='y':
+        cropped_img = np.transpose(cropped_img, axes=(1,0,2))
+
+    if args['border']:
+        h, w = img.shape[:2]
+        if args['axis']=='y':
+            h, w = w, h
+        cropped_img = pad_img(cropped_img, h, w)
+        cropped_img.save(args['output'])
     else:
-        print 'simple crop'
-        cropped = resize_image(img, crop, dual_gradient_energy, save_name=savefilename, flipped=flip)
-    if axis == 'v':
-        cropped = np.transpose(cropped, axes=(1,0,2))
-    print "Image cropped from {0} to {1}".format(img.shape[:2], cropped.shape[:2])
-    Image.fromarray(cropped).save(savefilename)
+        Image.fromarray(cropped_img).save(args['output'])
+
+    print "\nImage {0} cropped by {1} pixels along the {2}-axis and saved as {3}\n".format(args['input_file'], args['pixels'], args['axis'], args['output'])
+
+if __name__ == "__main__":
+    main()
 
     ### Display the simple energy and dual gradient energy maps for input file ###
     # dual_gradient_energy_map = energy_map(img, dual_gradient_energy)

@@ -18,29 +18,29 @@ Create and activate a virtualenv.
 
 `pip install -r requirements.txt`
 
-Put the originals of the images you want to work with in the `imgs` directory. Currently only does dual gradient energy. You can manually change it to use the simple energy function, but dual gradient will probably work better.
+Currently only does dual gradient energy. You can manually change it to use the simple energy function, but dual gradient will probably work better.
 
-Eventually going to set up argparse with more options, but for now:
 
-#### Basic
+#### Arguments
+Required args
 
-`python seam_carver.py <file to crop> <name for cropped image> <# of pixels to crop off width> <h/v>`
+One positional arg: filename of image to crop
 
-The last option is either h or v, indicating horizontal or vertical resizing. 
+```
+    -a --axis       What axis to shrink the image on (x or y)
+    -p --pixels     How many pixels to crop off the image
+```
 
-Example: "Crop 50 pixels from the width of castle_small.jpg and save as castle_small_crop.jpg"
+Optional args
+```
+    -o --output     What to name the cropped image.
+    -i --interval   Save every i intermediate image.
+    -b --border     Whether or not to pad the cropped images to the size of
+                        the original.
+```
 
-`python seam_carver.py castle_small.jpg castle_small_crop.jpg 50 h`
+Example: Crop 100 pixels off the height of `imgs/castle_small.jpg` and save every 10th iteration, with padding would be `python seam_carver.py imgs/castle_small.jpg -p 100 -a y -b True -i 10`
 
-#### Save intermediate images
-
-`python seam_carver.py <file to crop> <name for cropped image> <# of pixels to crop> <interval at which to save image> <h/v>`
-
-Example: "Crop 32 pixels from the height of mountain_icon.jpg and save it as mountain_icon_crop.jpg, and save every other iteration"
-
-`python seam_carver.py mountain_icon.jpg mountain_icon_crop.jpg 32 2 v`
-
-In this example, intermediate images will get saved in a folder called "mountain_icon_crop", and the final image will be saved to the current directory.
 
 
 ### Algorithm Outline
