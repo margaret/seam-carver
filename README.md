@@ -21,6 +21,7 @@ Create and activate a virtualenv.
 Currently only does dual gradient energy. You can manually change it to use the simple energy function, but dual gradient will probably work better.
 
 
+#### Arguments
 Required args
 
 One positional arg: filename of image to crop
