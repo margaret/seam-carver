@@ -23,18 +23,21 @@ Currently only does dual gradient energy. You can manually change it to use the 
 One positional arg: filename of image to crop
 
 Required args
-<code>
+```
     -a --axis       What axis to shrink the image on (x or y)
     -p --pixels     How many pixels to crop off the image
-</code>
+```
 
 Optional args
-<code>
+```
     -o --output     What to name the cropped image.
     -i --interval   Save every i intermediate image.
     -b --border     Whether or not to pad the cropped images to the size of
                         the original.
-</code>
+```
+
+Example: Crop 100 pixels off the height of `imgs/castle_small.jpg` and save every 10th iteration, with padding would be `python seam_carver.py imgs/castle_small.jpg -p 100 -a y -b True -i 10`
+
 
 
 ### Algorithm Outline
