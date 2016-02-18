@@ -20,9 +20,11 @@ Create and activate a virtualenv.
 
 Currently only does dual gradient energy. You can manually change it to use the simple energy function, but dual gradient will probably work better.
 
-One positional arg: filename of image to crop
 
 Required args
+
+One positional arg: filename of image to crop
+
 ```
     -a --axis       What axis to shrink the image on (x or y)
     -p --pixels     How many pixels to crop off the image
