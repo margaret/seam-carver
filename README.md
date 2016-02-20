@@ -2,7 +2,7 @@
 
 Basic implementation of content-aware image resizing. Still in progress! This is mostly for fun, as Photoshop has an implementation of this called [Content Aware Scaling](https://helpx.adobe.com/photoshop/using/content-aware-scaling.html).
 
-![castle_demo](castle_small_300_seams.gif)
+![castle_demo](imgs/castle_small_300_seams.gif)
 
 Based on assignments from [UC Berkeley](https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/index.html), [Princeton](http://www.cs.princeton.edu/courses/archive/spring14/cos226/assignments/seamCarving.html), and [Brown's](http://cs.brown.edu/courses/cs129/results/proj3/taox/) computational image processing courses, and the always-dependable [Wikipedia page](https://en.wikipedia.org/wiki/Seam_carving).
 
