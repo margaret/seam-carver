@@ -12,6 +12,37 @@ def get_img_arr(filename):
     return np.array(Image.open(filename))
 
 
+def display_energy_map(img_map):
+    """
+    :img
+        2-D array representing energy map, shaped like (height, width)
+    """
+    scaled = img_map * 255 / float(img_map.max())
+    energy = Image.fromarray(scaled).show()
+
+
+def highlight_seam(img, seam):
+    """
+    :img
+        3-D numpy array representing the image
+    :seam
+        1-D numpy array with length == height of img representing the
+        x-coordinates of the pixel to remove from each row.
+
+    :returns 3-D numpy array representing the image, with the seam
+        highlighted
+    """
+    if len(seam)!=img.shape[0]:
+        raise ValueError("Seam height {0} does not match image height {1}".format(
+                img.shape[0], len(seam)))
+    highlight = img.copy()
+    height,width = img.shape[:2]
+    for i in xrange(height):
+        j = seam[i]
+        highlight[i][j] = np.array([255, 0, 0])
+    return highlight
+
+
 def pad_img(img, target_height, target_width, center=False):
     """
     Pad img to be target_height by target_width, with empty areas filled in
