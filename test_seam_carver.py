@@ -7,8 +7,7 @@ from seam_carver import (
     neighbors,
     cumulative_energy,
     find_seam,
-    remove_seam,
-    display_seam
+    remove_seam
 )
 from energy_functions import (
     dual_gradient_energy

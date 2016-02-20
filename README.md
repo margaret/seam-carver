@@ -1,10 +1,7 @@
 # seam-carver
 
 Basic implementation of content-aware image resizing. Still in progress! This is mostly for fun, as Photoshop has an implementation of this called [Content Aware Scaling](https://helpx.adobe.com/photoshop/using/content-aware-scaling.html).
-
-![castle_horizontal](imgs/castle_small_horizontal.gif)
-
-![castle_vertical](imgs/castle_small_vertical.gif)
+![castle_demo](castle_small_300_seams.gif)
 
 Based on assignments from [UC Berkeley](https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/index.html), [Princeton](http://www.cs.princeton.edu/courses/archive/spring14/cos226/assignments/seamCarving.html), and [Brown's](http://cs.brown.edu/courses/cs129/results/proj3/taox/) computational image processing courses, and the always-dependable [Wikipedia page](https://en.wikipedia.org/wiki/Seam_carving).
 
@@ -37,6 +34,7 @@ Optional args
     -i --interval   Save every i intermediate image.
     -b --border     Whether or not to pad the cropped images to the size of
                         the original.
+    -s --show_seam  Whether or not to  draw the seam on the image before saving it.
 ```
 
 Example: Crop 100 pixels off the height of `imgs/castle_small.jpg` and save every 10th iteration, with padding would be `python seam_carver.py imgs/castle_small.jpg -p 100 -a y -b True -i 10`
@@ -60,7 +58,8 @@ Things that we need to be able to do in order to do a simple content-aware image
 
 * Uses the notation where img[x][y] means img[row][col], which is consistent with numpy arrays, but which is supposedly the opposite of the convention in image processing.
 * seam_carver.py cannot run as script as-is in a virtual env because of something simple probably that I just haven't looked up yet.
-* Currently only uses dual energy gradient energy function. As you can see in the vertical resizing example, it slowly decapitates the human figure and ends up scoring the grass as important (probably) due to the many small changes in color across the grass. Different energy functions work well with different types of images. First priority at this point is integrating argparse, but after that I'll see about adding more energy function options and masking.
+![castle_vertical](imgs/castle_small_vertical.gif)
+* Currently only uses dual energy gradient energy function. As you can see in the vertical resizing example, it slowly decapitates the human figure and ends up scoring the grass as important (probably) due to the many small changes in color across the grass. Different energy functions work well with different types of images, for example, using a forward-energy algorithm would be better at preserving edges. On the to-do list!
 
 
 ### Dependencies

@@ -13,6 +13,8 @@ from utils import (
     pad_img,
     every_n,
     get_img_arr,
+    display_energy_map,
+    highlight_seam
 )
 
 
@@ -161,32 +163,7 @@ def remove_seam(img, seam):
     return np.array([np.delete(img[row], seam[row], axis=0) for row in xrange(height)])
 
 
-def display_energy_map(img_map):
-    """
-    :img
-        2-D array representing energy map, shaped like (height, width)
-    """
-    scaled = img_map * 255 / float(img_map.max())
-    energy = Image.fromarray(scaled).show()
-
-
-def display_seam(img, seam):
-    """
-    :img
-        3-D numpy array representing the image
-    :seam
-        1-D numpy array with length == height of img representing the
-        x-coordinates of the pixel to remove from each row.
-    """
-    highlight = img.copy()
-    height,width = img.shape[:2]
-    for i in xrange(height):
-        j = seam[i]
-        highlight[i][j] = np.array([255, 0, 0])
-    Image.fromarray(highlight).show()
-
-
-def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, savepoints=None, save_name=None, rotated=False):
+def resize_image(full_img, cropped_pixels, energy_fn, pad=False, savepoints=None, save_name=None, rotated=False, highlight=False):
     """
     :full_img
         3-D numpy array of the image you want to crop.
@@ -196,8 +173,6 @@ def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, 
     :energy_fn
         energy function for energy_map to use. Should have the same interface
         as dual_gradient_energy and simple_energy
-    :savepoints
-        list of ints indicating iterations on which to save the image
     :save_name
         str - required if savepoints is present. Base name for saved images.
         Must include file extension. E.g. if savename is 'castle_small_dge.jpg'
@@ -209,44 +184,58 @@ def resize_image(full_img, cropped_pixels, energy_fn, display=False, pad=False, 
         (not implemented)
     :display
         bool - whether or not to display intermediate images
-
+    :highlight
+        bool - whether to draw the seam to be removed on the image
+    :savepoints
+        list of ints indicating iterations on which to save the image
+    
     :returns 3-D numpy array of your now cropped_pixels-slimmer image. 
     """
     if savepoints == None:
         savepoints = []
     # we practice a non-destructive philosophy around these parts
     img = full_img.copy()
-    base,ext = save_name.split('.')
     if savepoints:
-        os.mkdir(base)
+        os.mkdir(save_name.split('.')[0])
     for i in trange(cropped_pixels, desc='cropping image by {0} pixels'.format(cropped_pixels)):
         e_map = energy_map(img, energy_fn)
         e_paths, e_totals = cumulative_energy(e_map)
         seam = find_seam(e_paths, seam_end(e_totals))
-        img = remove_seam(img, seam)
-        temp_img = img.copy()
         if i in savepoints:
-            if pad:
-                temp_img = np.array(pad_img(temp_img, full_img.shape[0], full_img.shape[1]))
-            if rotated:
-                temp_img = Image.fromarray(np.transpose(temp_img, axes=(1,0,2)))
-            else:
-                temp_img = Image.fromarray(temp_img)
-            temp_img.save(base+'/'+base.split('/')[-1]+'_'+str(i).zfill(len(str(savepoints[-1])))+'.'+ext)
-            if display:
-                temp_img.show()
+            save_image_with_options(img, highlight, pad, seam, rotated, save_name, full_img.shape[0], full_img.shape[1])
+        img = remove_seam(img, seam)
     return img
+
+
+def save_image_with_options(img, highlight, pad, seam, rotated, savename, original_height, original_width):
+    if highlight:
+        img = highlight_seam(img, seam)
+    if pad:
+        img = np.array(pad_img(img, original_height, original_width))
+    if rotated:
+        img = Image.fromarray(np.transpose(img, axes=(1,0,2)))
+    else:
+        img = Image.fromarray(img)
+    base,ext = save_name.split('.')
+    img.save(base+'/'+base.split('/')[-1]+'_'+str(i).zfill(len(str(savepoints[-1])))+'.'+ext)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Intelligently crop an image along one axis")
     parser.add_argument('input_file')
-    parser.add_argument('-a', '--axis', required=True, help="What axis to shrink the image on.", choices=['x', 'y'])
-    parser.add_argument('-p', '--pixels', type=int, required=True, help="How many pixels to shrink the image by.")
+    parser.add_argument('-a', '--axis', required=True,
+        help="What axis to shrink the image on.", choices=['x', 'y'])
+    parser.add_argument('-p', '--pixels', type=int, required=True,
+        help="How many pixels to shrink the image by.")
 
-    parser.add_argument('-o', '--output', help="What to name the new cropped image.")
-    parser.add_argument('-i', '--interval', type=int, help="Save every i intermediate images.")
-    parser.add_argument('-b', '--border', type=bool, help="Whether or not to pad the cropped images to the size of the original")
+    parser.add_argument('-o', '--output',
+        help="What to name the new cropped image.")
+    parser.add_argument('-i', '--interval', type=int,
+        help="Save every i intermediate images.")
+    parser.add_argument('-b', '--border', type=bool,
+        help="Whether or not to pad the cropped images to the size of the original")
+    parser.add_argument('-s', '--show_seam', type=bool,
+        help="Whether to highlight the removed seam on the intermediate images.")
 
     args = vars(parser.parse_args())
     print args
@@ -262,7 +251,9 @@ def main():
 
     savepoints = every_n(args['interval'], img.shape[1]) if args['interval'] else None
 
-    cropped_img = resize_image(img, args['pixels'], dual_gradient_energy, save_name=args['output'], savepoints=savepoints, rotated=args['axis']=='y', pad=args['border'])
+    cropped_img = resize_image(img, args['pixels'], dual_gradient_energy,
+        save_name=args['output'], savepoints=savepoints,
+        rotated=args['axis']=='y', pad=args['border'], highlight=args['show_seam'])
 
     if args['axis']=='y':
         cropped_img = np.transpose(cropped_img, axes=(1,0,2))
@@ -276,7 +267,8 @@ def main():
     else:
         Image.fromarray(cropped_img).save(args['output'])
 
-    print "\nImage {0} cropped by {1} pixels along the {2}-axis and saved as {3}\n".format(args['input_file'], args['pixels'], args['axis'], args['output'])
+    print "\nImage {0} cropped by {1} pixels along the {2}-axis and saved as {3}\n".format(
+        args['input_file'], args['pixels'], args['axis'], args['output'])
 
 if __name__ == "__main__":
     main()
