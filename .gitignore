@@ -5,3 +5,4 @@ generated_imgs/*
 *~
 .DS_Store
 resizerenv/*
+env/*
