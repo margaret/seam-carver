@@ -202,12 +202,12 @@ def resize_image(full_img, cropped_pixels, energy_fn, pad=False, savepoints=None
         e_paths, e_totals = cumulative_energy(e_map)
         seam = find_seam(e_paths, seam_end(e_totals))
         if i in savepoints:
-            save_image_with_options(img, highlight, pad, seam, rotated, save_name, full_img.shape[0], full_img.shape[1])
+            save_image_with_options(img, highlight, pad, seam, rotated, save_name, full_img.shape[0], full_img.shape[1], i, savepoints)
         img = remove_seam(img, seam)
     return img
 
 
-def save_image_with_options(img, highlight, pad, seam, rotated, savename, original_height, original_width):
+def save_image_with_options(img, highlight, pad, seam, rotated, savename, original_height, original_width, point, savepoints):
     if highlight:
         img = highlight_seam(img, seam)
     if pad:
@@ -216,8 +216,8 @@ def save_image_with_options(img, highlight, pad, seam, rotated, savename, origin
         img = Image.fromarray(np.transpose(img, axes=(1,0,2)))
     else:
         img = Image.fromarray(img)
-    base,ext = save_name.split('.')
-    img.save(base+'/'+base.split('/')[-1]+'_'+str(i).zfill(len(str(savepoints[-1])))+'.'+ext)
+    base,ext = savename.split('.')
+    img.save(base+'/'+base.split('/')[-1]+'_'+str(point).zfill(len(str(savepoints[-1])))+'.'+ext)
 
 
 def main():
