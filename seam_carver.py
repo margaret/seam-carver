@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 import sys
 import os
 import argparse
@@ -89,8 +89,8 @@ def cumulative_energy(energy):
     paths = np.zeros((height,width))
     path_energies = np.zeros((height,width))
     
-    for i in xrange(height):
-        for j in xrange(width):
+    for i in range(height):
+        for j in range(width):
             target_energy = energy[i][j]
             if i == 0:
                 path_energies[i][j] = target_energy
@@ -141,8 +141,8 @@ def find_seam(paths, end_x):
     """
     height,width = paths.shape[:2]
     seam = [end_x]
-    for i in xrange(height-1,0,-1):
-        cur_x = seam[-1]
+    for i in range(height-1,0,-1):
+        cur_x = int(seam[-1])
         offset_of_prev_x = paths[i][cur_x]
         seam.append(cur_x + offset_of_prev_x)
     seam.reverse()
@@ -160,7 +160,7 @@ def remove_seam(img, seam):
         the input img
     """
     height,width = img.shape[:2]
-    return np.array([np.delete(img[row], seam[row], axis=0) for row in xrange(height)])
+    return np.array([np.delete(img[row], seam[row], axis=0) for row in range(height)])
 
 
 def resize_image(full_img, cropped_pixels, energy_fn, pad=False, savepoints=None, save_name=None, rotated=False, highlight=False):
@@ -238,7 +238,7 @@ def main():
         help="Whether to highlight the removed seam on the intermediate images.")
 
     args = vars(parser.parse_args())
-    print args
+    print(args)
 
     img = get_img_arr(args['input_file'])
 
@@ -267,8 +267,8 @@ def main():
     else:
         Image.fromarray(cropped_img).save(args['output'])
 
-    print "\nImage {0} cropped by {1} pixels along the {2}-axis and saved as {3}\n".format(
-        args['input_file'], args['pixels'], args['axis'], args['output'])
+    print("\nImage {0} cropped by {1} pixels along the {2}-axis and saved as {3}\n".format(
+        args['input_file'], args['pixels'], args['axis'], args['output']))
 
 if __name__ == "__main__":
     main()

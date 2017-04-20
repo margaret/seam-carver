@@ -37,7 +37,7 @@ def highlight_seam(img, seam):
                 img.shape[0], len(seam)))
     highlight = img.copy()
     height,width = img.shape[:2]
-    for i in xrange(height):
+    for i in range(height):
         j = seam[i]
         highlight[i][j] = np.array([255, 0, 0])
     return highlight
@@ -131,7 +131,7 @@ def every_n(n, height):
 
     returns a list of every nth nonzero int up to and not including height
     """
-    return [i for i in xrange(1,height) if i%n==0]
+    return [i for i in range(1,height) if i%n==0]
 
 
 if __name__ == "__main__":
