@@ -67,11 +67,15 @@ def energy_map(img, fn):
     :returns 2-D numpy array with the same height and width as img
         Each energy[x][y] is an int specifying the energy of that pixel
     """
-    energy = np.zeros(img.shape[:2])
-    for i,row in enumerate(img):
-        for j,pixel in enumerate(row):
-            energy[i][j] = fn(*neighbors(img, i,j))
-    return energy
+    x0 = np.roll(img, -1, axis=1).T
+    x1 = np.roll(img, 1, axis=1).T
+    y0 = np.roll(img, -1, axis=0).T
+    y1 = np.roll(img, 1, axis=0).T
+
+    # we do a lot of transposing before and after here because sums in the
+    # energy function happen along the first dimension by default when we
+    # want them to be happening along the last (summing the colors)
+    return fn(x0, x1, y0, y1).T
 
 
 def cumulative_energy(energy):
