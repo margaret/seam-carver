@@ -1,5 +1,7 @@
 # seam-carver
 
+![](https://travis-ci.org/margaret/seam-carver.svg?branch=master)
+
 Basic implementation of content-aware image resizing. Still in progress! This is mostly for fun, as Photoshop has an implementation of this called [Content Aware Scaling](https://helpx.adobe.com/photoshop/using/content-aware-scaling.html).
 
 ![castle_demo](imgs/castle_small_300_seams.gif)
