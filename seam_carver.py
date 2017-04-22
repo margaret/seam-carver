@@ -2,6 +2,7 @@
 import sys
 import os
 import argparse
+import numba
 import numpy as np
 from PIL import Image
 from tqdm import trange
@@ -16,7 +17,6 @@ from utils import (
     display_energy_map,
     highlight_seam
 )
-
 
 def neighbors(img, row, col):
     """
@@ -77,10 +77,10 @@ def energy_map(img, fn):
     # want them to be happening along the last (summing the colors)
     return fn(x0, x1, y0, y1).T
 
-
+@numba.jit()
 def cumulative_energy(energy):
     """
-    https://en.wikipedia.org/wiki/Seam_carving#Dynamic_Programming
+    https://en.wikipedia.org/wiki/Seam_carving#Dynamic_programming
     
     :energy
         2-D numpy array produced by energy_map
@@ -92,26 +92,18 @@ def cumulative_energy(energy):
     height, width = energy.shape
     paths = np.zeros((height,width))
     path_energies = np.zeros((height,width))
-    
-    for i in range(height):
+
+    path_energies[0] = energy[0]
+    paths[0] = np.arange(width) * np.nan
+
+    for i in range(1, height):
         for j in range(width):
-            target_energy = energy[i][j]
-            if i == 0:
-                path_energies[i][j] = target_energy
-                paths[i][j] = float('nan')
-            else:
-                if j == 0:
-                    prev_energies = list(path_energies[i-1, j:j+2])
-                    least_energy = min(prev_energies)
-                    path_energies[i][j] =  target_energy + least_energy
-                    paths[i][j] = prev_energies.index(least_energy)
-                else:
-                    # Note that indexing past the right edge of a row, as will happen
-                    # if j == width-1, will simply return the part of the slice that exists
-                    prev_energies = list(path_energies[i-1, j-1:j+2])
-                    least_energy = min(prev_energies)
-                    path_energies[i][j] =  target_energy + least_energy
-                    paths[i][j] = prev_energies.index(least_energy) - 1
+            # Note that indexing past the right edge of a row, as will happen
+            # if j == width-1, will simply return the part of the slice that exists
+            prev_energies = path_energies[i-1,max(j-1, 0):j+2]
+            least_energy = prev_energies.min()
+            path_energies[i][j] = energy[i][j] + least_energy
+            paths[i][j] = np.where(prev_energies == least_energy)[0][0] - (1*(j!=0))
 
     return paths, path_energies
 
