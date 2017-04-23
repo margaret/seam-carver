@@ -11,17 +11,28 @@ Based on assignments from [UC Berkeley](https://inst.eecs.berkeley.edu/~cs194-26
 [Original paper](https://inst.eecs.berkeley.edu/~cs194-26/fa14/hw/proj4-seamcarving/imret.pdf) by Shai Avidan and Ariel Shamir.
 
 
-### Usage
-#### Setup
+## Usage
 
-Create and activate a virtualenv.
+### Dependencies
 
-`pip install -r requirements.txt`
+* Numpy and Pillow (the active fork of PIL). At the moment Pillow is just used for file i/o as all of the actual image manipulation is in numpy, but might use it later for other stuff.
+* tqdm for progress bar
+* numba is used to speed up the part of the algorithm that uses dynamic processing and thus can't be optimized easily in pure numpy. On a Macbook Pro running OS X Sierra, this cuts the time to crop 100 pixels off `imgs/castle_small.jpg` from ~60s to ~6s. If you are having a hard time getting numba to install properly on your machine, you can simply comment out the `import numba` and the `@numba.jit()` decorator above the `cumulative energy` function and it should all still run, just a lot slower.
 
-Currently only does dual gradient energy. You can manually change it to use the simple energy function, but dual gradient will probably work better.
+I strongly recommend using `conda` to set this up, because otherwise it can potentially be a huge pain to install numba. Otherwise you should probably at least use a virtualenv because a lot of the numpy stack / image processing stack tends to be finicky about dependencies.
+
+Travis builds on Python 2.7, 3.5, and 3.6 (Linux) and it also works (manually installed via conda) on OS X Sierra.
+
+#### Conda
+
+[Install Anaconda](https://conda.io/docs/get-started.html) and then run `conda create env -f environment.yaml`, then enter the environment with `source activate seamcarver`. Exit the environment with `source deactivate`.
+
+#### Other
+
+`pip install -r requirements.txt` should work locally (assuming you've installed pip), in a virtualenv, or even inside conda.
 
 
-#### Arguments
+### Arguments
 Required args
 
 One positional arg: filename of image to crop
@@ -44,9 +55,9 @@ Example: Crop 100 pixels off the height of `imgs/castle_small.jpg` and save ever
 
 
 
-### Algorithm Outline
+## Algorithm
 
-Things that we need to be able to do in order to do a simple content-aware image resize in a single direction. The other direction can be done by rotating the image and shoving it through the exact same steps. 
+Steps for reizing an image a single direction. The other direction can be done by rotating the image and shoving it through the exact same steps. 
 
 1. Read in an image
 2. Calculate the energy function for the whole image
@@ -57,18 +68,13 @@ Things that we need to be able to do in order to do a simple content-aware image
 7. Repeat 2 through 6 until image is as small as specified
 8. Save resized image.
 
-### Notes
+## Notes
 
-* Uses the notation where img[x][y] means img[row][col], which is consistent with numpy arrays, but which is supposedly the opposite of the convention in image processing.
-* seam_carver.py cannot run as script as-is in a virtual env because of something simple probably that I just haven't looked up yet.
+* Uses the notation where img[x][y] means img[row][col], which is consistent with numpy arrays, but which is supposedly the opposite of the convention in image processing. 
 
 ![castle_vertical](imgs/castle_small_vertical.gif)
 
-* Currently only uses dual energy gradient energy function. As you can see in the vertical resizing example, it slowly decapitates the human figure and ends up scoring the grass as important (probably) due to the many small changes in color across the grass. Different energy functions work well with different types of images, for example, using a forward-energy algorithm would be better at preserving edges. On the to-do list!
+## Future
 
-
-### Dependencies
-
-* To install, you'll need Pip and virtualenv.
-* Numpy (installed as part of the SciPy pack) and Pillow (the active fork of PIL). At the moment PIL is just used for file i/o as all of the actual image manipulation is in numpy, but might use it later for other stuff.
-* tqdm for progress bar
+* Currently only uses dual energy gradient energy function. As you can see in the vertical resizing example, it slowly decapitates the human figure and ends up scoring the grass as important (probably) due to the many small changes in color across the grass. Different energy functions work well with different types of images, for example, using a forward-energy algorithm would be better at preserving edges.
+* Options to rescale by ratio. Instead of putting in the exact number of pixels, can rescale image to 5:3, 3:6, etc ratio.
