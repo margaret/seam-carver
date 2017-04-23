@@ -88,7 +88,7 @@ def energy_map(img, fn):
 def cumulative_energy(energy):
     """
     https://en.wikipedia.org/wiki/Seam_carving#Dynamic_programming
-    
+
     Parameters
     ==========
     energy: 2-D numpy.array
@@ -101,8 +101,8 @@ def cumulative_energy(energy):
         path_energies has the cumulative energy at each pixel.
     """
     height, width = energy.shape
-    paths = np.zeros((height,width))
-    path_energies = np.zeros((height,width))
+    paths = np.zeros((height, width))
+    path_energies = np.zeros((height, width))
 
     path_energies[0] = energy[0]
     paths[0] = np.arange(width) * np.nan
@@ -111,10 +111,10 @@ def cumulative_energy(energy):
         for j in range(width):
             # Note that indexing past the right edge of a row, as will happen if j == width-1, will
             # simply return the part of the slice that exists
-            prev_energies = path_energies[i-1,max(j-1, 0):j+2]
+            prev_energies = path_energies[i-1, max(j-1, 0):j+2]
             least_energy = prev_energies.min()
             path_energies[i][j] = energy[i][j] + least_energy
-            paths[i][j] = np.where(prev_energies == least_energy)[0][0] - (1*(j!=0))
+            paths[i][j] = np.where(prev_energies == least_energy)[0][0] - (1*(j != 0))
 
     return paths, path_energies
 
@@ -144,16 +144,16 @@ def find_seam(paths, end_x):
         the previous pixel in the seam
     end_x: int
         The x-coordinate of the end of the seam
-        
+
     Returns
     =======
         1-D numpy.array with length == height of the image
         Each element is the x-coordinate of the pixel to be removed at that y-coordinate. e.g.
         [4,4,3,2] means "remove pixels (0,4), (1,4), (2,3), and (3,2)"
     """
-    height,width = paths.shape[:2]
+    height, width = paths.shape[:2]
     seam = [end_x]
-    for i in range(height-1,0,-1):
+    for i in range(height-1, 0, -1):
         cur_x = int(seam[-1])
         offset_of_prev_x = paths[i][cur_x]
         seam.append(cur_x + offset_of_prev_x)
@@ -169,16 +169,17 @@ def remove_seam(img, seam):
         RGB image you want to resize
     seam: 1-D numpy.array
         seam to remove. Output of seam function
-    
+
     Returns
     =======
         3-D numpy array of the image that is 1 pixel shorter in width than the input img
     """
-    height,width = img.shape[:2]
+    height, width = img.shape[:2]
     return np.array([np.delete(img[row], seam[row], axis=0) for row in range(height)])
 
 
-def resize_image(full_img, cropped_pixels, energy_fn, pad=False, savepoints=None, save_name=None, rotated=False, highlight=False):
+def resize_image(full_img, cropped_pixels, energy_fn, pad=False, savepoints=None, save_name=None,
+                 rotated=False, highlight=False):
     """
     Parameters
     ==========
@@ -199,15 +200,15 @@ def resize_image(full_img, cropped_pixels, energy_fn, pad=False, savepoints=None
         list of mod 20, then 'castle_small_dge_20.jpg', 'castle_small_dge_20.jpg', etc. will be
         stored in the directory 'castle_small_dge/'
     rotated: bool
-        Whether the image has been transposed (and needs to be transposed back before saving) 
+        Whether the image has been transposed (and needs to be transposed back before saving)
     highlight: bool
         Whether to draw the seam to be removed on the image
-    
+
     Returns
     =======
-        3-D numpy array of your now cropped_pixels-slimmer image. 
+        3-D numpy array of your now cropped_pixels-slimmer image.
     """
-    if savepoints == None:
+    if savepoints is None:
         savepoints = []
     img = full_img.copy()
     if savepoints:
@@ -217,21 +218,23 @@ def resize_image(full_img, cropped_pixels, energy_fn, pad=False, savepoints=None
         e_paths, e_totals = cumulative_energy(e_map)
         seam = find_seam(e_paths, seam_end(e_totals))
         if i in savepoints:
-            save_image_with_options(img, highlight, pad, seam, rotated, save_name, full_img.shape[0], full_img.shape[1], i, savepoints)
+            save_image_with_options(img, highlight, pad, seam, rotated, save_name,
+                                    full_img.shape[0], full_img.shape[1], i, savepoints)
         img = remove_seam(img, seam)
     return img
 
 
-def save_image_with_options(img, highlight, pad, seam, rotated, savename, original_height, original_width, point, savepoints):
+def save_image_with_options(img, highlight, pad, seam, rotated, savename, original_height,
+                            original_width, point, savepoints):
     if highlight:
         img = highlight_seam(img, seam)
     if pad:
         img = np.array(pad_img(img, original_height, original_width))
     if rotated:
-        img = Image.fromarray(np.transpose(img, axes=(1,0,2)))
+        img = Image.fromarray(np.transpose(img, axes=(1, 0, 2)))
     else:
         img = Image.fromarray(img)
-    base,ext = savename.split('.')
+    base, ext = savename.split('.')
     img.save(base+'/'+base.split('/')[-1]+'_'+str(point).zfill(len(str(savepoints[-1])))+'.'+ext)
 
 
@@ -239,18 +242,18 @@ def main():
     parser = argparse.ArgumentParser(description="Intelligently crop an image along one axis")
     parser.add_argument('input_file')
     parser.add_argument('-a', '--axis', required=True,
-        help="What axis to shrink the image on.", choices=['x', 'y'])
+                        help="What axis to shrink the image on.", choices=['x', 'y'])
     parser.add_argument('-p', '--pixels', type=int, required=True,
-        help="How many pixels to shrink the image by.")
+                        help="How many pixels to shrink the image by.")
 
     parser.add_argument('-o', '--output',
-        help="What to name the new cropped image.")
+                        help="What to name the new cropped image.")
     parser.add_argument('-i', '--interval', type=int,
-        help="Save every i intermediate images.")
+                        help="Save every i intermediate images.")
     parser.add_argument('-b', '--border', type=bool,
-        help="Whether or not to pad the cropped images to the size of the original")
+                        help="Whether or not to pad the cropped images to the size of the original")
     parser.add_argument('-s', '--show_seam', type=bool,
-        help="Whether to highlight the removed seam on the intermediate images.")
+                        help="Whether to highlight the removed seam on the intermediate images.")
 
     args = vars(parser.parse_args())
     print(args)
@@ -258,7 +261,7 @@ def main():
     img = get_img_arr(args['input_file'])
 
     if args['axis'] == 'y':
-        img = np.transpose(img, axes=(1,0,2))
+        img = np.transpose(img, axes=(1, 0, 2))
 
     if args['output'] is None:
         name = args['input_file'].split('.')
@@ -267,15 +270,16 @@ def main():
     savepoints = every_n(args['interval'], img.shape[1]) if args['interval'] else None
 
     cropped_img = resize_image(img, args['pixels'], dual_gradient_energy,
-        save_name=args['output'], savepoints=savepoints,
-        rotated=args['axis']=='y', pad=args['border'], highlight=args['show_seam'])
+                               save_name=args['output'], savepoints=savepoints,
+                               rotated=args['axis'] == 'y', pad=args['border'],
+                               highlight=args['show_seam'])
 
-    if args['axis']=='y':
-        cropped_img = np.transpose(cropped_img, axes=(1,0,2))
+    if args['axis'] == 'y':
+        cropped_img = np.transpose(cropped_img, axes=(1, 0, 2))
 
     if args['border']:
         h, w = img.shape[:2]
-        if args['axis']=='y':
+        if args['axis'] == 'y':
             h, w = w, h
         cropped_img = pad_img(cropped_img, h, w)
         cropped_img.save(args['output'])

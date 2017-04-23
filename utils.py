@@ -40,9 +40,9 @@ def highlight_seam(img, seam):
     =======
         3-D numpy array representing the image, with the seam highlighted in red
     """
-    if len(seam)!=img.shape[0]:
-        raise ValueError("Seam height {0} does not match image height {1}".format(
-                img.shape[0], len(seam)))
+    if len(seam) != img.shape[0]:
+        err_msg = "Seam height {0} does not match image height {1}"
+        raise ValueError(err_msg.format(img.shape[0], len(seam)))
     highlight = img.copy()
     height, width = img.shape[:2]
     for i in range(height):
@@ -71,13 +71,13 @@ def pad_img(img, target_height, target_width, center=False):
     """
     old_size = (img.shape[1], img.shape[0])
     new_size = (target_width, target_height)
-    paste_coords = ((new_size[0]-old_size[0])/2, (new_size[1]-old_size[1])/2) if center else (0,0)
+    paste_coords = ((new_size[0]-old_size[0])/2, (new_size[1]-old_size[1])/2) if center else (0, 0)
 
     old_img = Image.fromarray(img)
     new_img = Image.new("RGB", new_size) # initialized to black padding
-    
+
     new_img.paste(old_img, box=paste_coords)
-    
+
     return new_img
 
 
@@ -88,7 +88,7 @@ def bulk_pad(unpadded, padded, height, width):
     Parameters
     ==========
     unpadded: str
-        Name of directory containing images to pad. 
+        Name of directory containing images to pad.
     padded: str
         Name of directory (should already exist) to place padded images.
     height: int
@@ -144,4 +144,4 @@ def every_n(n, height):
     =======
         List of every nth nonzero int up to and not including height
     """
-    return [i for i in range(1,height) if i%n==0]
+    return [i for i in range(1, height) if i%n == 0]
