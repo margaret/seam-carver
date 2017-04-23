@@ -1,31 +1,38 @@
 #!/usr/bin/env python
-import sys
-import os
 import argparse
+import os
+import sys
+
 import numba
 import numpy as np
 from PIL import Image
 from tqdm import trange
+
 from energy_functions import (
     simple_energy,
     dual_gradient_energy,
 )
 from utils import (
-    pad_img,
+    display_energy_map,
     every_n,
     get_img_arr,
-    display_energy_map,
-    highlight_seam
+    highlight_seam,
+    pad_img
 )
 
 def neighbors(img, row, col):
     """
-    :img
-        the 3-D np array representing the image
-    :row, col
-        int coordinates for the pixel to calculate energy for
+    Parameters
+    ==========
+    img: 3-D numpy.array
+        the image
+    row: int
+    col: int
+        coordinates for the pixel to calculate energy for
 
-    :returns tuple of 3 1-D numpy arrays [r,g,b]
+    Returns
+    =======
+        tuple of 3 1-D numpy arrays [r,g,b]
            y0
         x0 -- x1
            y1
@@ -57,12 +64,12 @@ def neighbors(img, row, col):
 
 def energy_map(img, fn):
     """
-    :img
-        numpy array representing the image of interest
-        shape is (height,width,3)
-    :fn
-        The energy function to use. Should take in 4 pixels
-        and return a float.
+    Parameters
+    ==========
+
+    img: numpy.array with shape (height, width, 3)
+    fn: function
+        The energy function to use. Should take in 4 pixels and return a float.
 
     :returns 2-D numpy array with the same height and width as img
         Each energy[x][y] is an int specifying the energy of that pixel
@@ -82,10 +89,14 @@ def cumulative_energy(energy):
     """
     https://en.wikipedia.org/wiki/Seam_carving#Dynamic_programming
     
-    :energy
-        2-D numpy array produced by energy_map
+    Parameters
+    ==========
+    energy: 2-D numpy.array
+        Produced by energy_map
 
-    :returns tuple of 2 2-D array with shape (height, width).
+    Returns
+    =======
+        tuple of 2 2-D numpy.arrays with shape (height, width).
         paths has the x-offset of the previous seam element for each pixel.
         path_energies has the cumulative energy at each pixel.
     """
@@ -98,8 +109,8 @@ def cumulative_energy(energy):
 
     for i in range(1, height):
         for j in range(width):
-            # Note that indexing past the right edge of a row, as will happen
-            # if j == width-1, will simply return the part of the slice that exists
+            # Note that indexing past the right edge of a row, as will happen if j == width-1, will
+            # simply return the part of the slice that exists
             prev_energies = path_energies[i-1,max(j-1, 0):j+2]
             least_energy = prev_energies.min()
             path_energies[i][j] = energy[i][j] + least_energy
@@ -110,10 +121,14 @@ def cumulative_energy(energy):
 
 def seam_end(energy_totals):
     """
-    :energy_totals
-        2-D numpy array with the cumulative energy of each pixel in the image
+    Parameters
+    ==========
+    energy_totals: 2-D numpy.array
+        Cumulative energy of each pixel in the image
 
-    :returns float
+    Returns
+    =======
+        float
         the x-coordinate of the bottom of the seam for the image with these
         cumulative energies
     """
@@ -122,18 +137,19 @@ def seam_end(energy_totals):
 
 def find_seam(paths, end_x):
     """
-    :paths
-        output of cumulative_energy_map
-        2-D array where each element of the matrix is the offset of the index
-        to the previous pixel in the seam
-    :end_x
-        int or float, the x-coordinate of the end of the seam
-        list(energies[-1]).index(min(energies[-1]))
+    Parameters
+    ==========
+    paths: 2-D numpy.array
+        Output of cumulative_energy_map. Each element of the matrix is the offset of the index to
+        the previous pixel in the seam
+    end_x: int
+        The x-coordinate of the end of the seam
         
-    :returns 1-D array with length == height of the image
-        each element is the x-coordinate of the pixel to be removed at that
-        y-coordinate. e.g. [4,4,3,2] means "remove pixels (0,4), (1,4), (2,3),
-        and (3,2)"
+    Returns
+    =======
+        1-D numpy.array with length == height of the image
+        Each element is the x-coordinate of the pixel to be removed at that y-coordinate. e.g.
+        [4,4,3,2] means "remove pixels (0,4), (1,4), (2,3), and (3,2)"
     """
     height,width = paths.shape[:2]
     seam = [end_x]
@@ -147,13 +163,16 @@ def find_seam(paths, end_x):
 
 def remove_seam(img, seam):
     """
-    :img
-        3-D numpy array representing the RGB image you want to resize
-    :seam
-        1-D numpy array of the seam to remove. Output of seam function
+    Parameters
+    ==========
+    img: 3-D numpy.array
+        RGB image you want to resize
+    seam: 1-D numpy.array
+        seam to remove. Output of seam function
     
-    :returns 3-D numpy array of the image that is 1 pixel shorter in width than
-        the input img
+    Returns
+    =======
+        3-D numpy array of the image that is 1 pixel shorter in width than the input img
     """
     height,width = img.shape[:2]
     return np.array([np.delete(img[row], seam[row], axis=0) for row in range(height)])
@@ -161,35 +180,35 @@ def remove_seam(img, seam):
 
 def resize_image(full_img, cropped_pixels, energy_fn, pad=False, savepoints=None, save_name=None, rotated=False, highlight=False):
     """
-    :full_img
-        3-D numpy array of the image you want to crop.
-    :cropped_pixels
-        int - number of pixels you want to shave off the width. Aka how many
-        vertical seams to remove.
-    :energy_fn
-        energy function for energy_map to use. Should have the same interface
-        as dual_gradient_energy and simple_energy
-    :save_name
-        str - required if savepoints is present. Base name for saved images.
-        Must include file extension. E.g. if savename is 'castle_small_dge.jpg'
-        and savepoints is a list of mod 20, then 'castle_small_dge_20.jpg',
-        'castle_small_dge_20.jpg', etc. will be stored in the directory 
-        'castle_small_dge/'
-    :pad
-        bool - whether or not to pad the saved image with a black border
-        (not implemented)
-    :display
-        bool - whether or not to display intermediate images
-    :highlight
-        bool - whether to draw the seam to be removed on the image
-    :savepoints
-        list of ints indicating iterations on which to save the image
+    Parameters
+    ==========
+    full_img: 3-D numpy.array
+        Image you want to crop.
+    cropped_pixels: int
+        Number of pixels you want to shave off the width. Aka how many vertical seams to remove.
+    energy_fn: function
+        Energy function for energy_map to use. Should have the same interface as
+        dual_gradient_energy and simple_energy
+    pad: bool
+        Whether or not to pad the saved image with a black border
+    savepoints: list(int)
+        Iterations on which to save the image
+    save_name: str
+        Required if savepoints is present. Base name for saved images.
+        Must include file extension. E.g. if savename is 'castle_small_dge.jpg' and savepoints is a
+        list of mod 20, then 'castle_small_dge_20.jpg', 'castle_small_dge_20.jpg', etc. will be
+        stored in the directory 'castle_small_dge/'
+    rotated: bool
+        Whether the image has been transposed (and needs to be transposed back before saving) 
+    highlight: bool
+        Whether to draw the seam to be removed on the image
     
-    :returns 3-D numpy array of your now cropped_pixels-slimmer image. 
+    Returns
+    =======
+        3-D numpy array of your now cropped_pixels-slimmer image. 
     """
     if savepoints == None:
         savepoints = []
-    # we practice a non-destructive philosophy around these parts
     img = full_img.copy()
     if savepoints:
         os.mkdir(save_name.split('.')[0])
@@ -265,6 +284,7 @@ def main():
 
     print("\nImage {0} cropped by {1} pixels along the {2}-axis and saved as {3}\n".format(
         args['input_file'], args['pixels'], args['axis'], args['output']))
+
 
 if __name__ == "__main__":
     main()

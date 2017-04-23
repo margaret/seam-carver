@@ -1,8 +1,10 @@
 #!/usr/bin/env python
+import unittest
+
 import numpy as np
 from numpy.testing import assert_array_equal
 from PIL import Image
-import unittest
+
 from seam_carver import (
     energy_map,
     neighbors,

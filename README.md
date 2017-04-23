@@ -17,7 +17,7 @@ Based on assignments from [UC Berkeley](https://inst.eecs.berkeley.edu/~cs194-26
 
 * Numpy and Pillow (the active fork of PIL). At the moment Pillow is just used for file i/o as all of the actual image manipulation is in numpy, but might use it later for other stuff.
 * tqdm for progress bar
-* numba is used to speed up the part of the algorithm that uses dynamic processing and thus can't be optimized easily in pure numpy. On a Macbook Pro running OS X Sierra, this cuts the time to crop 100 pixels off `imgs/castle_small.jpg` from ~60s to ~6s. If you are having a hard time getting numba to install properly on your machine, you can simply comment out the `import numba` and the `@numba.jit()` decorator above the `cumulative energy` function and it should all still run, just a lot slower.
+* numba is used to speed up the part of the algorithm that uses dynamic programming and thus can't be optimized easily in pure numpy. On a Macbook Pro running OS X Sierra, this cuts the time to crop 100 pixels off `imgs/castle_small.jpg` from ~60s to ~6s. If you are having a hard time getting numba to install properly on your machine, you can simply comment out the `import numba` and the `@numba.jit()` decorator above the `cumulative energy` function and it should all still run, just a lot slower.
 
 I strongly recommend using `conda` to set this up, because otherwise it can potentially be a huge pain to install numba. Otherwise you should probably at least use a virtualenv because a lot of the numpy stack / image processing stack tends to be finicky about dependencies.
 
@@ -72,9 +72,9 @@ Steps for reizing an image a single direction. The other direction can be done b
 
 * Uses the notation where img[x][y] means img[row][col], which is consistent with numpy arrays, but which is supposedly the opposite of the convention in image processing. 
 
-![castle_vertical](imgs/castle_small_vertical.gif)
-
 ## Future
+
+![castle_vertical](imgs/castle_small_vertical.gif)
 
 * Currently only uses dual energy gradient energy function. As you can see in the vertical resizing example, it slowly decapitates the human figure and ends up scoring the grass as important (probably) due to the many small changes in color across the grass. Different energy functions work well with different types of images, for example, using a forward-energy algorithm would be better at preserving edges.
 * Options to rescale by ratio. Instead of putting in the exact number of pixels, can rescale image to 5:3, 3:6, etc ratio.
