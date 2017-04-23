@@ -4,18 +4,24 @@ from PIL import Image
 
 def get_img_arr(filename):
     """
-    :string filename
+    Parameters
+    ==========
+    filename: str
         path to png or jpg file to use
 
-    :returns 3-D np.array (of uint8) shape (height, width, 3)
-        where the pixel at arr[x][y] is the array [r,g,b]"""
+    Returns
+    =======
+        3-D np.array(uint8) with shape (height, width, 3) where the pixel at
+        arr[x][y] is the array [r,g,b]"""
     return np.array(Image.open(filename))
 
 
 def display_energy_map(img_map):
     """
-    :img
-        2-D array representing energy map, shaped like (height, width)
+    Parameters
+    ==========
+    img: 2-D numpy.array with shape (height, width)
+        The energy map of the image
     """
     scaled = img_map * 255 / float(img_map.max())
     energy = Image.fromarray(scaled).show()
@@ -23,20 +29,22 @@ def display_energy_map(img_map):
 
 def highlight_seam(img, seam):
     """
-    :img
-        3-D numpy array representing the image
-    :seam
-        1-D numpy array with length == height of img representing the
-        x-coordinates of the pixel to remove from each row.
+    Parameters
+    ==========
+    img: 3-D numpy.array
+        The image
+    seam: 1-D numpy..array with length == height of img
+        The x-coordinates of the pixel to remove from each row.
 
-    :returns 3-D numpy array representing the image, with the seam
-        highlighted
+    Returns
+    =======
+        3-D numpy array representing the image, with the seam highlighted in red
     """
     if len(seam)!=img.shape[0]:
         raise ValueError("Seam height {0} does not match image height {1}".format(
                 img.shape[0], len(seam)))
     highlight = img.copy()
-    height,width = img.shape[:2]
+    height, width = img.shape[:2]
     for i in range(height):
         j = seam[i]
         highlight[i][j] = np.array([255, 0, 0])
@@ -45,47 +53,48 @@ def highlight_seam(img, seam):
 
 def pad_img(img, target_height, target_width, center=False):
     """
-    Pad img to be target_height by target_width, with empty areas filled in
-    black.
+    Pad img to be target_height by target_width, with empty areas filled in black.
     http://stackoverflow.com/questions/11142851/adding-borders-to-an-image-using-python
 
-    :img
-        3-D numpy array representing an RGB image
-    :target_height
-        int
-    :target_width
-        int
-    :center
-        bool -- whether to center the orignal image. Otherwise, it's pasted into the
-        upper left corner.
+    img: 3-D numpy array
+        RGB image
+    target_height: int
+        Height to crop img to
+    target_width: int
+        Width to crop img to
+    center: bool
+        Whether to center the orignal image. Otherwise, it's pasted into the upper left corner.
 
-    :returns
-        the padded PIL Image
+    Returns
+    =======
+        Padded PIL Image
     """
     old_size = (img.shape[1], img.shape[0])
     new_size = (target_width, target_height)
     paste_coords = ((new_size[0]-old_size[0])/2, (new_size[1]-old_size[1])/2) if center else (0,0)
 
     old_img = Image.fromarray(img)
-    new_im = Image.new("RGB", new_size) # initialized to black padding
+    new_img = Image.new("RGB", new_size) # initialized to black padding
     
-    new_im.paste(old_img, box=paste_coords)
+    new_img.paste(old_img, box=paste_coords)
     
-    return new_im
+    return new_img
 
 
 def bulk_pad(unpadded, padded, height, width):
     """
     Script to pad all images in a directory to the same shape.
 
-    :unpadded
-        str - name of directory containing images to pad. 
-    :padded
-        str - name of directory (should already exist) to place padded images.
-    :height
-        int - height in pixels to pad images to
-    :width
-        int - width in pixels to pad images to
+    Parameters
+    ==========
+    unpadded: str
+        Name of directory containing images to pad. 
+    padded: str
+        Name of directory (should already exist) to place padded images.
+    height: int
+        Height in pixels to pad images to
+    width: int
+        Width in pixels to pad images to
     """
     for f in os.listdir(unpadded):
         if not f.startswith('.'):
@@ -97,19 +106,19 @@ def bulk_pad(unpadded, padded, height, width):
 def new_shape_for_ratio(img, h, w, scale_x=True):
     """
     Calculate the height and width of an image scaled to the ratio h:w
-    - Facebook cover photos are 851px wide by 315px tall, and must be at least
-    399px wide and 150px tall.
 
-    :img
-        3-D numpy array shape=(height,width,3) representing an image
-    :h
-        int - height of desired ratio
-    :w
-        int - width of desired ratio
-    :scale_x
-        bool - whether to shrink the image horizontally
+    Parameters
+    img: 3-D numpy.array with shape (height, width, 3)
+        An image
+    h: int
+        Height of desired ratio
+    w: int
+        Width of desired ratio
+    scale_x: bool
+        Whether to shrink the image horizontally
 
-    :returns
+    Returns
+    =======
         tuple (int, int) of the new height and width in pixels
     """
     old_height, old_width = img.shape[:2]
@@ -127,12 +136,12 @@ def new_shape_for_ratio(img, h, w, scale_x=True):
 
 def every_n(n, height):
     """
-    n and height are int or float
+    Parameters
+    n: int
+    height: int
 
-    returns a list of every nth nonzero int up to and not including height
+    Returns
+    =======
+        List of every nth nonzero int up to and not including height
     """
     return [i for i in range(1,height) if i%n==0]
-
-
-if __name__ == "__main__":
-    bulk_pad('castle_small_v', 'castle_small_v_pad', 279, 411)
