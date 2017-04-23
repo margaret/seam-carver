@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+from __future__ import (
+  division,
+  print_function
+)
 import unittest
 
 import numpy as np
@@ -22,7 +26,6 @@ from utils import (
 class UtilsTestCase(unittest.TestCase):
 
     def setUp(self):
-        nan = np.nan
         # numbers from the princeton site's project instructions
         # http://www.cs.princeton.edu/courses/archive/spring14/cos226/assignments/seamCarving.html
         self.img_1 = np.array([
@@ -41,24 +44,24 @@ class UtilsTestCase(unittest.TestCase):
         ])
 
         self.img_2_dual_gradient_energy_map = [
-            [57685.0,   50893.0,    91370.0,    25418.0,    33055.0,    37246.0],
-            [15421.0,   56334.0,    22808.0,    54796.0,    11641.0,    25496.0],
-            [12344.0,   19236.0,    52030.0,    17708.0,    44735.0,    20663.0],
-            [17074.0,   23678.0,    30279.0,    80663.0,    37831.0,    45595.0],
-            [32337.0,   30796.0,    4909.0,     73334.0,    40613.0,    36556.0]
+            [57685,   50893,    91370,    25418,    33055,    37246],
+            [15421,   56334,    22808,    54796,    11641,    25496],
+            [12344,   19236,    52030,    17708,    44735,    20663],
+            [17074,   23678,    30279,    80663,    37831,    45595],
+            [32337,   30796,    4909,     73334,    40613,    36556]
         ]
 
         self.img_3 = np.array([
-            [1., 4., 3., 5., 2.],
-            [3., 2., 5., 2., 3.],
-            [5., 2., 4., 2., 1.]
+            [1, 4, 3, 5, 2],
+            [3, 2, 5, 2, 3],
+            [5, 2, 4, 2, 1]
         ])
 
         self.img_3_paths = np.array([
-            [nan,nan,nan,nan,nan],
-            [0.,-1., 0., 1., 0.],
-            [1., 0.,-1., 0.,-1.]
-        ])
+            np.arange(5) * np.nan,
+            [0, -1, 0, 1, 0],
+            [1, 0, -1, 0, -1]
+        ], dtype=np.int64)
 
     def test_import_square(self):
         square_img = get_img_arr("imgs/mountain_icon.jpg")
@@ -70,21 +73,21 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_neighbors_on_row_edge(self):
         pixels_right = neighbors(self.img_1, 1, 2)
-        answer_right = ([255, 153, 153],[255, 153, 51],[255, 101, 255],[255, 205, 255])
+        answer_right = ([255, 153, 153], [255, 153, 51], [255, 101, 255], [255, 205, 255])
         # raises AssertionError if wrong, otherwise returns None
         assert_array_equal(pixels_right, answer_right)
         pixels_left = neighbors(self.img_1, 2, 0)
-        answer_left = ([255, 205, 255],[255, 204, 153],[255, 153, 51],[255, 255, 51])
+        answer_left = ([255, 205, 255], [255, 204, 153], [255, 153, 51], [255, 255, 51])
         assert_array_equal(pixels_left, answer_left)
 
     def test_neighbors_on_col_edge(self):
         pixels = neighbors(self.img_1, 3, 1)
-        answer = ([255, 255, 51],[255, 255, 255],[255, 204, 153],[255, 101, 153])
+        answer = ([255, 255, 51], [255, 255, 255], [255, 204, 153], [255, 101, 153])
         assert_array_equal(pixels, answer)
 
     def test_neighbors_on_corner(self):
         pixels = neighbors(self.img_1, 0,0)
-        answer = ([255, 101, 255],[255, 101, 153],[255, 255, 51],[255, 153, 51])
+        answer = ([255, 101, 255], [255, 101, 153], [255, 255, 51], [255, 153, 51])
         assert_array_equal(pixels, answer)
 
     def test_dual_gradient(self):
@@ -100,27 +103,27 @@ class UtilsTestCase(unittest.TestCase):
     def test_cumulative_energy(self):
         # numbers from wikipedia article
         cumulative_energy_key = np.array([
-            [1., 4., 3., 5., 2.],
-            [4., 3., 8., 4., 5.],
-            [8., 5., 7., 6., 5.]
+            [1, 4, 3, 5, 2],
+            [4, 3, 8, 4, 5],
+            [8, 5, 7, 6, 5]
         ])
         results = cumulative_energy(self.img_3)
-        assert_array_equal(results[0], self.img_3_paths)
-        assert_array_equal(results[1], cumulative_energy_key)
+        assert_array_equal(results[0], self.img_3_paths, err_msg='paths not equal')
+        assert_array_equal(results[1], cumulative_energy_key, err_msg='path_energies not equal')
 
     def test_find_seam(self):
-        start = 1.
+        start = 1
         seam_result = find_seam(self.img_3_paths, start)
-        seam_key = [0.,1.,1.]
+        seam_key = [0, 1, 1]
         assert_array_equal(seam_result, seam_key)
 
     def test_remove_seam(self):
-        seam = [0.,1.,1.]
+        seam = [0, 1, 1]
         cropped_result = remove_seam(self.img_3, seam)
         cropped_key = np.array([
-            [4., 3., 5., 2.],
-            [3., 5., 2., 3.],
-            [5., 4., 2., 1.]
+            [4, 3, 5, 2],
+            [3, 5, 2, 3],
+            [5, 4, 2, 1]
         ])
         assert_array_equal(cropped_result, cropped_key)
 
@@ -128,10 +131,10 @@ class UtilsTestCase(unittest.TestCase):
         im = get_img_arr('imgs/castle_small.jpg')
 
         h, w = new_shape_for_ratio(im, 315, 851, scale_x=False)
-        assert(abs(float(h)/w - 315/851.0) < 0.001)
+        assert(abs(h/w - 315/851) < 0.001)
 
         h, w = new_shape_for_ratio(im, 215, 851)
-        assert(abs(float(h)/w - 215/851.0) < 0.001)
+        assert(abs(h/w - 215/851) < 0.001)
 
 
 if __name__ == "__main__":

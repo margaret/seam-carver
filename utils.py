@@ -1,3 +1,4 @@
+from __future__ import division
 import os
 import numpy as np
 from PIL import Image
@@ -23,7 +24,7 @@ def display_energy_map(img_map):
     img: 2-D numpy.array with shape (height, width)
         The energy map of the image
     """
-    scaled = img_map * 255 / float(img_map.max())
+    scaled = img_map * 255 / img_map.max()
     energy = Image.fromarray(scaled).show()
 
 
@@ -124,11 +125,11 @@ def new_shape_for_ratio(img, h, w, scale_x=True):
     old_height, old_width = img.shape[:2]
     if scale_x:
         new_height = old_height
-        scale = w / float(h)
+        scale = w / h
         new_width = int(old_height * scale)
     else:
         new_width = old_width
-        scale = h / float(w)
+        scale = h / w
         new_height = int(old_width * scale)
 
     return new_height, new_width
