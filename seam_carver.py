@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+
 import argparse
 import os
 import sys
@@ -91,19 +93,18 @@ def cumulative_energy(energy):
 
     Parameters
     ==========
-    energy: 2-D numpy.array
+    energy: 2-D numpy.array(uint8)
         Produced by energy_map
 
     Returns
     =======
-        tuple of 2 2-D numpy.arrays with shape (height, width).
+        tuple of 2 2-D numpy.array(int64) with shape (height, width).
         paths has the x-offset of the previous seam element for each pixel.
         path_energies has the cumulative energy at each pixel.
     """
     height, width = energy.shape
-    paths = np.zeros((height, width))
-    path_energies = np.zeros((height, width))
-
+    paths = np.zeros((height, width), dtype=np.int64)
+    path_energies = np.zeros((height, width), dtype=np.int64)
     path_energies[0] = energy[0]
     paths[0] = np.arange(width) * np.nan
 
@@ -123,12 +124,12 @@ def seam_end(energy_totals):
     """
     Parameters
     ==========
-    energy_totals: 2-D numpy.array
+    energy_totals: 2-D numpy.array(int64)
         Cumulative energy of each pixel in the image
 
     Returns
     =======
-        float
+        numpy.int64
         the x-coordinate of the bottom of the seam for the image with these
         cumulative energies
     """
@@ -139,7 +140,7 @@ def find_seam(paths, end_x):
     """
     Parameters
     ==========
-    paths: 2-D numpy.array
+    paths: 2-D numpy.array(int64)
         Output of cumulative_energy_map. Each element of the matrix is the offset of the index to
         the previous pixel in the seam
     end_x: int
@@ -147,14 +148,14 @@ def find_seam(paths, end_x):
 
     Returns
     =======
-        1-D numpy.array with length == height of the image
+        1-D numpy.array(int64) with length == height of the image
         Each element is the x-coordinate of the pixel to be removed at that y-coordinate. e.g.
         [4,4,3,2] means "remove pixels (0,4), (1,4), (2,3), and (3,2)"
     """
     height, width = paths.shape[:2]
     seam = [end_x]
     for i in range(height-1, 0, -1):
-        cur_x = int(seam[-1])
+        cur_x = seam[-1]
         offset_of_prev_x = paths[i][cur_x]
         seam.append(cur_x + offset_of_prev_x)
     seam.reverse()
